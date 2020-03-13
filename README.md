@@ -13,6 +13,7 @@ The package is compatible with TensorFlow v2.
 
    * TensorFlow v2.1
    * NumPy
+   * SymPy
    * IMinuit 
 
 ROOT is not required anymore. 

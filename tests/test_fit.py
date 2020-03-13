@@ -87,10 +87,12 @@ if __name__ == "__main__" :
   norm_sample = phsp.uniform_sample(1000000)
 
   # TF graph for unbinned negalite log likelihood (the quantity to be minimised)
-  @tf.function
+  @atfi.function
   def nll(data, norm) : 
     return atfl.unbinned_nll(model(data), atfl.integral(model(norm)))
 
   # Run MINUIT minimisation of the neg. log likelihood
   result = atfo.run_minuit(nll, pars, args = (data_sample, norm_sample))
   print(result)
+
+  print(f"{result['time']/result['func_calls']} sec per function call")

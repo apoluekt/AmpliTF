@@ -21,6 +21,8 @@ from iminuit import Minuit
 
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable
 
+from timeit import default_timer as timer
+
 class FitParameter(ResourceVariable) : 
     def __init__(self, name, init_value, lower_limit, upper_limit, step_size = 1e-6) : 
         global __all_variables__
@@ -80,14 +82,16 @@ def run_minuit(nll, pars, args, use_gradient = True) :
 
     def grad(par) : 
         for i,p in enumerate(float_pars) : p.update(par[i])
+        grad.n += 1
         with tf.GradientTape() as gradient : 
             gradient.watch(float_pars)
             nll_val = nll(*args)
-        grad = gradient.gradient(nll_val, float_pars, unconnected_gradients=tf.UnconnectedGradients.ZERO)
-        grad_val = [ i.numpy() for i in grad ]
-        return grad_val
+        g = gradient.gradient(nll_val, float_pars, unconnected_gradients=tf.UnconnectedGradients.ZERO)
+        g_val = [ i.numpy() for i in g ]
+        return g_val
 
     func.n = 0
+    grad.n = 0
 
     start = [ p.init_value for p in float_pars ]
     error = [ p.step_size for p in float_pars ]
@@ -98,19 +102,25 @@ def run_minuit(nll, pars, args, use_gradient = True) :
       minuit = Minuit.from_array_func(func, start, error = error, limit = limit, name = name, grad = grad, errordef = 0.5)
     else : 
       minuit = Minuit.from_array_func(func, start, error = error, limit = limit, name = name, errordef = 0.5)
+
+    start = timer()
     minuit.migrad()
+    end = timer()
 
     par_states = minuit.get_param_states()
     f_min = minuit.get_fmin()
 
-    results = {} # Get fit results and update parameters
+    results = { "params" : {} } # Get fit results and update parameters
     for n, p in enumerate(float_pars) :
         p.update(par_states[n].value)
         p.fitted_value = par_states[n].value
         p.error = par_states[n].error
-        results[p.par_name] = (p.fitted_value, p.error)
+        results["params"][p.par_name] = (p.fitted_value, p.error)
 
     # return fit results
     results["loglh"] = f_min.fval
-    results["iterations"] = func.n
+    results["iterations"] = f_min.ncalls
+    results["func_calls"] = func.n
+    results["grad_calls"] = grad.n
+    results["time"] = end-start
     return results

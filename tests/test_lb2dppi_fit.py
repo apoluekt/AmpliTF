@@ -23,11 +23,9 @@
 
 import tensorflow as tf
 
-# Timer for benchmarking
-from timeit import default_timer as timer
-
 import sys, os
 sys.path.append("../")
+#os.environ["CUDA_VISIBLE_DEVICES"] = ""   # Do not use GPU
 
 import amplitf.interface as atfi
 import amplitf.kinematics as atfk
@@ -214,11 +212,9 @@ if __name__ == "__main__" :
     def nll(data, norm) : 
       return atfl.unbinned_nll(model(data), atfl.integral(model(norm)))
 
-    print(nll(data_sample, norm_sample))  # to trigger tracing
-    start = timer()
     result = atfo.run_minuit(nll, pars, args = (data_sample, norm_sample))
-    end = timer()
-    print(end - start) 
 
     # Store fit result in a text file
     print(result)
+
+    print(f"{result['time']/result['func_calls']} sec per function call")

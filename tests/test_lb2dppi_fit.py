@@ -59,9 +59,13 @@ def CouplingSign(spin, parity) :
 
 if __name__ == "__main__" : 
 
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus : 
+      tf.config.experimental.set_virtual_device_configuration(gpus[0], [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*10)])
+
     # Default flags that can be overridden by command line options
-    norm_grid = 400
-    toy_sample = 10000
+    norm_grid = 1000
+    toy_sample = 100000
 
     # Masses of initial and final state particles
     mlb = 5.620

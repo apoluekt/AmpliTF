@@ -1,0 +1,21 @@
+# Build output
+*build/
+.fuse_*
+
+# Python temporary files
+*.pyc
+.coverage
+.coverage.*
+.eggs
+.ipynb_checkpoints/
+.pytest_cache/
+__pycache__/
+htmlcov/
+*.egg-info/
+
+# Virtual environments
+*venv/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace

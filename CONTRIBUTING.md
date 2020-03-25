@@ -12,4 +12,4 @@ Some guidelines for code design (still to be discussed).
 use 
 ```tf.reduce_sum(v[...,0:3], axis=-1)```
    * Conventions for spins and orbital momenta: all spins and momenta are *doubled*: spin=1 for spinors, spin=2 for vectors etc., to avoid dealing with floating point numbers for spins. This can cause confusion sometimes. Better ideas? 
-      * Even more confusing is that currently, in the Blatt-Weisskopf FFs and BW lineshapes, the orbiatl momenta are *not* doubled. To be fixed once we develope a good convention. 
+      * Even more confusing is that currently, in the Blatt-Weisskopf FFs and BW lineshapes, the orbital momenta are *not* doubled. To be fixed once we develope a good convention. 

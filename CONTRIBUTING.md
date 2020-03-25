@@ -2,6 +2,7 @@ Some guidelines for code design (still to be discussed).
 
    * Follow functional paradigm: code consisting of pure functions and stateless objects. 
    * Try to limit the usage of TensorFlow-specific functions in the places other than amplitf/interface.py to a minimum. The ultimate goal is to have the code that is agnostic to the actual backend, place all TF-specific code to interface.py, and be able to switch backends. 
+      * As a realistic minimum, be able to switch between TF and pure numpy
    * Naming of functions: the functions that return TF graphs should have nouns as the names (e.g. maximum_estimator), while those that internally run the graphs are verbs (e.g. run_minuit). In TF1 terms, it would be the functions which do and do not operate with tf.Session, respectively, but in TF2 this distinction is blurred. 
    * Comments to functions: what convention should we use for self-documentation software? 
    * Conventions for tensor indexing: 

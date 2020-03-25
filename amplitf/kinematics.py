@@ -184,7 +184,7 @@ def vector_product(vec1, vec2):
     :param vec2: 
 
     """
-    return tf.cross(vec1, vec2)
+    return tf.linalg.cross(vec1, vec2)
 
 
 
@@ -196,7 +196,7 @@ def cross_product(vec1, vec2):
     :param vec2: 
 
     """
-    return tf.cross(vec1, vec2)
+    return tf.linalg.cross(vec1, vec2)
 
 
 
@@ -503,7 +503,7 @@ def four_momenta_from_helicity_angles(md, ma, mb, theta, phi):
 
 
 
-@atfi.function
+#@atfi.function
 def recursive_sum(vectors):
     """Helper function fro nested_helicity_angles. It sums all the vectors in
       a list or nested list
@@ -515,7 +515,7 @@ def recursive_sum(vectors):
 
 
 
-@atfi.function
+#@atfi.function
 def nested_helicity_angles(pdecays):
     """Calculate the Helicity Angles for every decay topology specified with brackets []
     examples:
@@ -589,7 +589,7 @@ def axes_after_rotation(pb, oldaxes=None):
     x0 = vector(ones, zeros, zeros) if oldaxes == None else oldaxes[0]
     sp = scalar_product(z1, z0)
     a0 = z0 - z1 * scalar(sp)   # vector in z-pb plane perpendicular to z0
-    x1 = tf.where(tf.equal(sp, 1.0), x0, -unit_vector(a0))
+    x1 = tf.where(scalar(tf.equal(sp, 1.)), x0, -unit_vector(a0))
     y1 = vector_product(z1, x1)                   # New y-axis
     return (x1, y1, z1)
 
@@ -644,7 +644,7 @@ def rotation_and_boost(ps, pb):
 
 
 
-@atfi.function
+#@atfi.function
 def nested_rotation_and_boost(ps, axes, boost):
     """Helper function for rotation_and_boost. It applies rotation_and_boost iteratively on nested lists
 

@@ -7,7 +7,7 @@ Some guidelines for code design (still to be discussed).
    * Conventions for tensor indexing: 
       * The 1st index always corresponds to an "event"
       * The last index corresponds to a variable that characterises the event (e.g. component of a vector or component of the kinematic phase space)
-      * There could be inner indices that could be reserved for, e.g. integration over invisible degrees of freedom, for convolution with resolution, etc. Therefore, functions operating with vectors should not assume that the tensof always has two indices. Use ellipsis where needed, e.g. instead of 
+      * There could be inner indices that could be reserved for, e.g. integration over invisible degrees of freedom, for convolution with resolution, etc. Therefore, functions operating with vectors should not assume that the tensor always has two indices. Use ellipsis where needed, e.g. instead of 
 ```tf.reduce_sum(v[:,0:3], axis=1)``` 
 use 
 ```tf.reduce_sum(v[...,0:3], axis=-1)```

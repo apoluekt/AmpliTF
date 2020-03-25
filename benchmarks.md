@@ -12,7 +12,7 @@ RAM usage for this fit: around 8 Gb. VRAM on v100 was limited to 10 Gb.
       * CPU-only: 0.266 (autograph=False). ~43 threads in parallel on average
       * GPU: 0.060 (autograph=False)
       * GPU: 0.1172 (autograph=False, experimental_relax_shapes=True)
-      * CPU-only, sampe fit with TF1.3 and TFA: 0.196
+      * CPU-only, same fit with TF1.3 and TFA: 0.196
       * GPU, same fit with TF1.3 and TFA: 0.040
       
    * Laptop: Dell XPS, Intel Core i7-8550U 1.80 GHz, 8 threads. 

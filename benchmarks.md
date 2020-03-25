@@ -18,5 +18,6 @@ RAM usage for this fit: around 8 Gb. VRAM on v100 was limited to 10 Gb.
    * Laptop: Dell XPS, Intel Core i7-8550U 1.80 GHz, 8 threads. 
       * CPU-only: 0.857 (autograph=False)
 
-   * Desktop: Intel Core i5-3570 3.40 GHz, 4 threads
+   * Desktop: Intel Core i5-3570 3.40 GHz, 4 threads + NVidia GTX 750 Ti (2 Gb)
       * CPU-only: 0.736 (autograph=False)
+      * GPU: 0.184 (autograph=False). W/o gradients (gradients do not fit into 2 Gb VRAM). 

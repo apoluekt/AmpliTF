@@ -249,11 +249,11 @@ class DalitzPhaseSpace:
           Make sure you don't pass in sqDP corner points as they lie outside phsp.
         """
         m2AC = 0.25*(self.maxac ** 0.5 * atfi.cos(math.pi * mprimeac) + self.maxac **
-                     0.5 - self.minac ** 0.5 * Cos(math.pi*mprimeac) + self.minac ** 0.5)**2
+                     0.5 - self.minac ** 0.5 * atfi.cos(math.pi*mprimeac) + self.minac ** 0.5)**2
         m2AB = 0.5*(-m2AC**2 + m2AC * self.ma ** 2 + m2AC * self.mb ** 2 + m2AC * self.mc ** 2 + m2AC * self.md ** 2 -
                     m2AC * atfi.sqrt((m2AC * (m2AC - 2.0 * self.ma ** 2 - 2.0 * self.mc ** 2) +
-                                    self.ma ** 4 - 2.0 * self.ma ** 2 * self.mc ** 2 + self.mc ** 4) / m2AC) * atfi.sqrt((m2AC * (m2AC - 2.0 * self.mb ** 2 - 2.0 * self.md ** 2) +
-                                                                                                                        self.mb ** 4 - 2.0 * self.mb ** 2 * self.md ** 2 + self.md ** 4) / m2AC) * atfi.cos(math.pi * thprimeac) -
+                    self.ma ** 4 - 2.0 * self.ma ** 2 * self.mc ** 2 + self.mc ** 4) / m2AC) * atfi.sqrt((m2AC * (m2AC - 2.0 * self.mb ** 2 - 2.0 * self.md ** 2) +
+                    self.mb ** 4 - 2.0 * self.mb ** 2 * self.md ** 2 + self.md ** 4) / m2AC) * atfi.cos(math.pi * thprimeac) -
                     self.ma ** 2 * self.mb ** 2 + self.ma ** 2 * self.md ** 2 + self.mb ** 2 * self.mc ** 2 - self.mc ** 2 * self.md ** 2)/m2AC
         m2BC = self.msqsum - m2AC - m2AB
         return tf.stack([m2AB, m2BC], axis=1)

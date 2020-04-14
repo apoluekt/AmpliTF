@@ -231,8 +231,8 @@ class FourBodyHelicityPhaseSpace:
 
         zeros = atfi.zeros(pA)
 
-        p3A = atfk.rotate_euler(Vector(zeros, zeros, pA), zeros, Acos(ctha), zeros)
-        p3B = atfk.rotate_euler(Vector(zeros, zeros, pB), zeros, Acos(cthb), phi)
+        p3A = atfk.rotate_euler(atfk.vector(zeros, zeros, pA), zeros, atfi.acos(ctha), zeros)
+        p3B = atfk.rotate_euler(atfk.vector(zeros, zeros, pB), zeros, atfi.acos(cthb), phi)
 
         ea = atfi.sqrt(p0 ** 2 + ma1a2 ** 2)
         eb = atfi.sqrt(p0 ** 2 + mb1b2 ** 2)

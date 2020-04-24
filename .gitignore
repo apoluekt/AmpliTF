@@ -1,6 +1,7 @@
 # Build output
 *build/
 .fuse_*
+/*dist/
 
 # Python temporary files
 *.pyc

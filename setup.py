@@ -22,7 +22,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/apoluekt/AmpliTF",
     packages=setuptools.find_packages(),
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=[
         'iminuit',
         'numpy',

@@ -20,10 +20,6 @@ import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 from amplitf.phasespace.dalitz_phasespace import DalitzPhaseSpace
 
-import sys
-import os
-sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
 
 class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
     """

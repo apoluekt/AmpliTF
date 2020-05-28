@@ -19,10 +19,6 @@ import tensorflow as tf
 import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 
-import sys
-import os
-sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
 class DalitzPhaseSpace:
     """
     Class for Dalitz plot (2D) phase space for the 3-body decay D->ABC

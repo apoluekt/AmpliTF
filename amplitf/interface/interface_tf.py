@@ -20,9 +20,13 @@ import sys
 
 _fptype = tf.float64
 _ctype = tf.complex128
+_args = None
+_nll = None
+_float_pars = None
 
-#function = tf.function(autograph=False, experimental_relax_shapes=True)
-function = tf.function(autograph=False)
+function = tf.function(autograph=False, experimental_relax_shapes=True)
+#function = tf.function(autograph=False)
+generator_function = tf.function(autograph=False)
 #def function(f) : return f
 
 def set_single_precision():
@@ -52,7 +56,7 @@ _interface_dict = {
   "abs" : "tf.abs",
   "max" : "tf.maximum",
   "min" : "tf.minimum",
-  "complex" : "tf.complex",
+  #"complex" : "tf.complex",
   "conjugate" : "tf.conj",
   "real" : "tf.real",
   "imaginary" : "tf.imag",
@@ -70,66 +74,59 @@ _interface_dict = {
   "pow" : "tf.pow",
   "zeros" : "tf.zeros_like",
   "ones" : "tf.ones_like",
+  "cross" : "tf.linalg.cross", 
+  "reduce_max" : "tf.reduce_max", 
+  "reduce_sum" : "tf.reduce_sum", 
+  "reduce_mean" : "tf.reduce_mean", 
+#  "stack" :  "tf.stack", 
+#  "concat" : "tf.concat", 
+  "where" :  "tf.where", 
+  "equal" :  "tf.equal", 
+  "logical_and" : "tf.logical_and", 
+  "greater" : "tf.greater", 
+  "less" :    "tf.less", 
 }
 
 m = sys.modules[__name__]
 for k,v in _interface_dict.items() : 
   fun = exec(f"""
-@function
 def {k}(*args) : 
   return {v}(*args)
   """)
   m.__dict__[k] = locals()[f"{k}"]
 
-@function
-def density(ampl):
-    """ density for a complex amplitude """
-    return abs(ampl)**2
+def complex(re, im) : 
+    return tf.complex(re, im)
 
-@function
-def polar(a, ph):
-    """ Create a complex number from a magnitude and a phase """
-    return complex(a*cos(ph), a*sin(ph))
-
-@function
 def cast_complex(re):
     """ Cast a real number to complex """
     return tf.cast(re, dtype=ctype())
 
-@function
 def cast_real(re):
     """ Cast a number to real """
     return tf.cast(re, dtype=fptype())
 
-@function
 def const(c):
     """ Declare constant """
     return tf.constant(c, dtype=fptype())
 
-@function
+def bool_const(c):
+    """ Declare constant """
+    return tf.constant(c, dtype=bool)
+
 def invariant(c):
     """ Declare invariant """
     return tf.constant([c], dtype=fptype())
 
-@function
+def concat(x, axis = 0) : 
+    return tf.concat(x, axis = axis)
+
+def stack(x, axis = 0) : 
+    return tf.stack(x, axis = axis)
+
 def pi():
     return const(np.pi)
 
-@function
-def argument(c):
-    """ Return argument (phase) of a complex number """
-    return atan2(imag(c), real(c))
-
-def clebsch(j1, m1, j2, m2, J, M):
-    """
-      Return clebsch-Gordan coefficient. Note that all arguments should be multiplied by 2
-      (e.g. 1 for spin 1/2, 2 for spin 1 etc.). Needs sympy.
-    """
-    from sympy.physics.quantum.cg import CG
-    from sympy import Rational
-    return CG(Rational(j1, 2), Rational(m1, 2), Rational(j2, 2), Rational(m2, 2), Rational(J, 2), Rational(M, 2)).doit().evalf()
-
-@function
 def interpolate(t, c):
     """
       Multilinear interpolation on a rectangular grid of arbitrary number of dimensions
@@ -155,3 +152,73 @@ def set_seed(seed):
       Set random seed for numpy
     """
     tf.random.set_seed(seed)
+
+def variable(x, shape, dtype) : 
+    return tf.Variable(x, shape, dtype)
+
+def random_uniform(shape, minval, maxval) : 
+    return tf.random.uniform(shape, minval, maxval, dtype = fptype())
+
+from tensorflow.python.ops.resource_variable_ops import ResourceVariable
+
+class FitParameter :
+
+    def __init__(self, name, init_value, lower_limit, upper_limit, step_size = 1e-6) :
+        self.var = ResourceVariable(init_value, shape = (), name = name, dtype = fptype(), trainable = True)
+        self.init_value = init_value
+        self.name = name
+        self.step_size = step_size
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
+        self.prev_value = None
+        self.fixed = False
+        self.error = 0.
+        self.positive_error = 0.
+        self.negative_error = 0.
+        self.fitted_value = init_value
+
+    def update(self, value) : 
+        if value != self.prev_value : 
+            self.var.assign(value)
+            self.prev_value = value
+
+    def __call__(self) : 
+        return self.var
+
+    def fix(self):
+        self.fixed = True
+
+    def float(self):
+        self.fixed = False
+
+    def setFixed(self, fixed):
+        self.fixed = fixed
+
+    def floating(self):
+        """
+          Return True if the parameter is floating and step size>0
+        """
+        return self.step_size > 0 and not self.fixed
+
+    def numpy(self) : 
+        return var.numpy()
+
+def create_gradient(nll, args, float_pars) : 
+    global _args, _nll, _float_pars
+    _args = args
+    _nll = nll
+    _float_pars = float_pars
+    return True
+
+def gradient(par) :
+    global _args, _nll, _float_pars
+    for i,p in enumerate(_float_pars) : p.update(par[i])
+    kwargs = { p.name : p() for p in _float_pars }
+    float_vars = [ i() for i in _float_pars ]
+    gradient.n += 1
+    with tf.GradientTape() as gt : 
+        gt.watch( float_vars )
+        nll_val = _nll(*_args, kwargs)
+    g = gt.gradient(nll_val, float_vars, unconnected_gradients=tf.UnconnectedGradients.ZERO)
+    g_val = [ i.numpy() for i in g ]
+    return g_val

@@ -13,10 +13,3 @@
 # limitations under the License.
 # ==============================================================================
 
-from amplitf.interface import *
-from amplitf.kinematics import *
-from amplitf.toymc import *
-from amplitf.phasespace import *
-from amplitf.dynamics import *
-from amplitf.optimisation import *
-from amplitf.likelihood import *

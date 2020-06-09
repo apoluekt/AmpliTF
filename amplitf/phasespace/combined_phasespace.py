@@ -17,7 +17,6 @@
 import math
 
 import numpy as np
-import tensorflow as tf
 import amplitf.interface as atfi
 
 import sys
@@ -39,15 +38,20 @@ class CombinedPhaseSpace:
 
     @atfi.function
     def data1(self, x):
-        return tf.slice(x, [0, 0], [-1, self.phsp1.dimensionality()])
+        #print(x[..., : self.phsp1.dimensionality()])
+        return x[..., : self.phsp1.dimensionality()]
+        #return tf.slice(x, [0, 0], [-1, self.phsp1.dimensionality()])
 
     @atfi.function
     def data2(self, x):
-        return tf.slice(x, [0, self.phsp1.dimensionality()], [-1, self.phsp2.dimensionality()])
+        #print(x[...,self.phsp1.dimensionality() : ])
+        return x[...,self.phsp1.dimensionality() : ]
+        #return tf.slice(x, [0, self.phsp1.dimensionality()], [-1, self.phsp2.dimensionality()])
 
     @atfi.function
     def inside(self, x):
-        return tf.logical_and(self.phsp1.inside(self.data1(x)), self.phsp2.inside(self.data2(x)))
+        #return tf.logical_and(self.phsp1.inside(self.data1(x)), self.phsp2.inside(self.data2(x)))
+        return self.phsp1.inside(self.data1(x))
 
     @atfi.function
     def filter(self, x):

@@ -13,19 +13,24 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+#import tensorflow as tf
 
 import sys, os
 sys.path.append("../")
 #os.environ["CUDA_VISIBLE_DEVICES"] = ""   # Do not use GPU
 
 import amplitf.interface as atfi
+
+atfi.backend_auto()
+
 import amplitf.kinematics as atfk
 import amplitf.dynamics as atfd
 import amplitf.toymc as atft
+import amplitf.rootio as atfr
 from amplitf.phasespace.rectangular_phasespace import RectangularPhaseSpace
 
-from ROOT import TFile
+#atfi.backend_numpy()
+#atfi.backend_tf()
 
 if __name__ == "__main__" : 
 
@@ -39,7 +44,7 @@ if __name__ == "__main__" :
 
   ### Start of model description
 
-  def model(x) : 
+  def model(x, switches = [1, 1]) : 
     # Get phase space variables
     cosThetaK = phsp.coordinate(x, 0)
     cosThetaL = phsp.coordinate(x, 1)
@@ -57,11 +62,13 @@ if __name__ == "__main__" :
 
     # Decay density
     pdf  = (3.0/4.0) * (1.0 - FL ) * sinTheta2K
-    pdf +=  FL * cosThetaK * cosThetaK
-    pdf +=  (1.0/4.0) * (1.0 - FL) * sin2ThetaK *  cos2ThetaL
-    pdf +=  (-1.0) * FL * cosThetaK * cosThetaK *  cos2ThetaL
-    pdf +=  (1.0/2.0) * (1.0 - FL) * AT2 * sinTheta2K * sinTheta2L * atfi.cos(2.0 * phi)
-    pdf +=  S5 * sin2ThetaK * sinThetaL * atfi.cos(phi)
+    if switches[0] : 
+      pdf +=  FL * cosThetaK * cosThetaK
+      pdf +=  (1.0/4.0) * (1.0 - FL) * sin2ThetaK *  cos2ThetaL
+      pdf +=  (-1.0) * FL * cosThetaK * cosThetaK *  cos2ThetaL
+    if switches[1] : 
+      pdf +=  (1.0/2.0) * (1.0 - FL) * AT2 * sinTheta2K * sinTheta2L * atfi.cos(2.0 * phi)
+      pdf +=  S5 * sin2ThetaK * sinThetaL * atfi.cos(phi)
 
     return pdf
 
@@ -74,7 +81,9 @@ if __name__ == "__main__" :
   print("Maximum = ", maximum)
 
   # Create toy MC data sample (with the model parameters set to their initial values)
-  data_sample = atft.run_toymc(model, phsp, 1000000, maximum, chunk = 1000000)
+  data_sample = atft.run_toymc(model, phsp, 1000000, maximum, chunk = 1000000, components = True)
 
   print(data_sample)
 
+  branches = ["costhk", "costhl", "phi", "w1", "w2"]
+  atfr.write_tuple("test.root", data_sample, branches )

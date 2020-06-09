@@ -15,7 +15,7 @@
 
 import sys
 import operator
-import tensorflow as tf
+#import tensorflow as tf
 import numpy as np
 import math
 import itertools
@@ -23,7 +23,7 @@ import itertools
 import amplitf.interface as atfi
 
 
-@atfi.function
+
 def spatial_components(vector):
     """Return spatial components of the input Lorentz vector
 
@@ -34,7 +34,7 @@ def spatial_components(vector):
     return vector[..., 0:3]
 
 
-@atfi.function
+
 def time_component(vector):
     """Return time component of the input Lorentz vector
 
@@ -45,7 +45,7 @@ def time_component(vector):
     return vector[..., 3]
 
 
-@atfi.function
+
 def x_component(vector):
     """Return spatial X component of the input Lorentz or 3-vector
 
@@ -57,7 +57,7 @@ def x_component(vector):
 
 
 
-@atfi.function
+
 def y_component(vector):
     """Return spatial Y component of the input Lorentz or 3-vector
 
@@ -69,7 +69,7 @@ def y_component(vector):
 
 
 
-@atfi.function
+
 def z_component(vector):
     """Return spatial Z component of the input Lorentz or 3-vector
 
@@ -81,7 +81,7 @@ def z_component(vector):
 
 
 
-@atfi.function
+
 def pt(vector):
     """Return transverse (X-Y) component of the input Lorentz or 3-vector
 
@@ -93,7 +93,7 @@ def pt(vector):
 
 
 
-@atfi.function
+
 def eta(vector):
     """Return pseudorapidity component of the input Lorentz or 3-vector
 
@@ -105,7 +105,7 @@ def eta(vector):
 
 
 
-@atfi.function
+
 def vector(x, y, z):
     """Make a 3-vector from components
       x, y, z : vector components
@@ -115,11 +115,11 @@ def vector(x, y, z):
     :param z: 
 
     """
-    return tf.stack([x, y, z], axis=-1)
+    return atfi.stack([x, y, z], axis=-1)
 
 
 
-@atfi.function
+
 def scalar(x):
     """Create a scalar (e.g. tensor with only one component) which can be used to e.g. scale a vector
     One cannot do e.g. const(2.)*vector(x, y, z), needs to do scalar(const(2))*vector(x, y, z)
@@ -127,11 +127,11 @@ def scalar(x):
     :param x: 
 
     """
-    return tf.stack([x], axis=-1)
+    return atfi.stack([x], axis=-1)
 
 
 
-@atfi.function
+
 def lorentz_vector(space, time):
     """Make a Lorentz vector from spatial and time components
       space : 3-vector of spatial components
@@ -141,18 +141,18 @@ def lorentz_vector(space, time):
     :param time: 
 
     """
-    return tf.concat([space, tf.stack([time], axis=-1)], axis=-1)
+    return atfi.concat([space, atfi.stack([time], axis=-1)], axis=-1)
 
 
 
-@atfi.function
+
 def metric_tensor():
     """Metric tensor for Lorentz space (constant)"""
-    return tf.constant([-1., -1., -1., 1.], dtype=atfi.fptype())
+    return atfi.const([-1., -1., -1., 1.], dtype=atfi.fptype())
 
 
 
-@atfi.function
+
 def mass(vector):
     """Calculate mass scalar for Lorentz 4-momentum
       vector : input Lorentz momentum vector
@@ -160,11 +160,11 @@ def mass(vector):
     :param vector: 
 
     """
-    return atfi.sqrt(tf.reduce_sum(vector * vector * metric_tensor(), -1))
+    return atfi.sqrt(atfi.reduce_sum(vector * vector * metric_tensor(), -1))
 
 
 
-@atfi.function
+
 def scalar_product(vec1, vec2):
     """Calculate scalar product of two 3-vectors
 
@@ -172,11 +172,11 @@ def scalar_product(vec1, vec2):
     :param vec2: 
 
     """
-    return tf.reduce_sum(vec1*vec2, -1)
+    return atfi.reduce_sum(vec1*vec2, -1)
 
 
 
-@atfi.function
+
 def vector_product(vec1, vec2):
     """Calculate vector product of two 3-vectors
 
@@ -184,11 +184,11 @@ def vector_product(vec1, vec2):
     :param vec2: 
 
     """
-    return tf.linalg.cross(vec1, vec2)
+    return atfi.cross(vec1, vec2)
 
 
 
-@atfi.function
+
 def cross_product(vec1, vec2):
     """Calculate cross product of two 3-vectors
 
@@ -196,22 +196,22 @@ def cross_product(vec1, vec2):
     :param vec2: 
 
     """
-    return tf.linalg.cross(vec1, vec2)
+    return atfi.cross(vec1, vec2)
 
 
 
-@atfi.function
+
 def norm(vec):
     """Calculate norm of 3-vector
 
     :param vec: 
 
     """
-    return atfi.sqrt(tf.reduce_sum(vec * vec, -1))
+    return atfi.sqrt(atfi.reduce_sum(vec * vec, -1))
 
 
 
-@atfi.function
+
 def p(vector):
     """Calculate absolute value of the 4-momentum
 
@@ -222,7 +222,7 @@ def p(vector):
 
 
 
-@atfi.function
+
 def unit_vector(vec):
     """Unit vector in the direction of vec
 
@@ -233,7 +233,7 @@ def unit_vector(vec):
 
 
 
-@atfi.function
+
 def perpendicular_unit_vector(vec1, vec2):
     """Unit vector perpendicular to the plane formed by vec1 and vec2
 
@@ -246,7 +246,7 @@ def perpendicular_unit_vector(vec1, vec2):
 
 
 
-@atfi.function
+
 def lorentz_boost(vector, boostvector):
     """Perform Lorentz boost
       vector :     4-vector to be boosted
@@ -269,7 +269,7 @@ def lorentz_boost(vector, boostvector):
 
 
 
-@atfi.function
+
 def boost_to_rest(vector, boostvector):
     """Perform Lorentz boost to the rest frame of the 4-vector boostvector.
 
@@ -282,7 +282,7 @@ def boost_to_rest(vector, boostvector):
 
 
 
-@atfi.function
+
 def boost_from_rest(vector, boostvector):
     """Perform Lorentz boost from the rest frame of the 4-vector boostvector.
 
@@ -295,7 +295,7 @@ def boost_from_rest(vector, boostvector):
 
 
 
-@atfi.function
+
 def rotate(v, angle, axis):
     """rotate vector around an arbitrary axis, from ROOT implementation
 
@@ -331,7 +331,7 @@ def rotate(v, angle, axis):
 
 
 
-@atfi.function
+
 def rotate_euler(v, phi, theta, psi):
     """Perform 3D rotation of the 3-vector
       v : vector to be rotated
@@ -378,7 +378,7 @@ def rotate_euler(v, phi, theta, psi):
 
 
 
-@atfi.function
+
 def rotate_lorentz_vector(v, phi, theta, psi):
     """Perform 3D rotation of the 4-vector
       v : vector to be rotated
@@ -394,7 +394,7 @@ def rotate_lorentz_vector(v, phi, theta, psi):
 
 
 
-@atfi.function
+
 def project_lorentz_vector(p, axes):
     """
 
@@ -410,7 +410,7 @@ def project_lorentz_vector(p, axes):
 
 
 
-@atfi.function
+
 def cos_helicity_angle_dalitz(m2ab, m2bc, md, ma, mb, mc):
     """Calculate cos(helicity angle) for set of two Dalitz plot variables
       m2ab, m2bc : Dalitz plot variables (inv. masses squared of AB and BC combinations)
@@ -447,7 +447,7 @@ def cos_helicity_angle_dalitz(m2ab, m2bc, md, ma, mb, mc):
 
 
 
-@atfi.function
+
 def spherical_angles(pb):
     """theta, phi : polar and azimuthal angles of the vector pb
 
@@ -461,7 +461,7 @@ def spherical_angles(pb):
 
 
 
-@atfi.function
+
 def helicity_angles(pb):
     """theta, phi : polar and azimuthal angles of the vector pb
 
@@ -472,7 +472,7 @@ def helicity_angles(pb):
 
 
 
-@atfi.function
+
 def four_momenta_from_helicity_angles(md, ma, mb, theta, phi):
     """Calculate the four-momenta of the decay products in D->AB in the rest frame of D
         md:    mass of D
@@ -503,7 +503,7 @@ def four_momenta_from_helicity_angles(md, ma, mb, theta, phi):
 
 
 
-#@atfi.function
+#
 def recursive_sum(vectors):
     """Helper function fro nested_helicity_angles. It sums all the vectors in
       a list or nested list
@@ -515,7 +515,7 @@ def recursive_sum(vectors):
 
 
 
-#@atfi.function
+#
 def nested_helicity_angles(pdecays):
     """Calculate the Helicity Angles for every decay topology specified with brackets []
     examples:
@@ -548,7 +548,7 @@ def nested_helicity_angles(pdecays):
 
 
 
-@atfi.function
+
 def change_axes(ps, newaxes):
     """List of lorentz_vector with the component described by the
       new axes (x,y,z).
@@ -571,7 +571,7 @@ def change_axes(ps, newaxes):
 
 
 
-@atfi.function
+
 def axes_after_rotation(pb, oldaxes=None):
     """Calculate new (rotated) axes aligned with the momentum vector pb
 
@@ -589,13 +589,13 @@ def axes_after_rotation(pb, oldaxes=None):
     x0 = vector(ones, zeros, zeros) if oldaxes == None else oldaxes[0]
     sp = scalar_product(z1, z0)
     a0 = z0 - z1 * scalar(sp)   # vector in z-pb plane perpendicular to z0
-    x1 = tf.where(scalar(tf.equal(sp, 1.)), x0, -unit_vector(a0))
+    x1 = atfi.where(scalar(atfi.equal(sp, 1.)), x0, -unit_vector(a0))
     y1 = vector_product(z1, x1)                   # New y-axis
     return (x1, y1, z1)
 
 
 
-@atfi.function
+
 def axes_before_rotation(pb):
     """Calculate old (before rotation) axes in the frame aligned with the momentum vector pb
 
@@ -608,7 +608,7 @@ def axes_before_rotation(pb):
     x0 = vector(atfi.ones(eb), atfi.zeros(eb), atfi.zeros(eb))  # Old x-axis vector
     sp = scalar_product(z1, z0)
     a0 = z0 - z1 * scalar(sp)   # vector in z-pb plane perpendicular to z0
-    x1 = tf.where(tf.equal(sp, 1.0), x0, -unit_vector(a0))
+    x1 = atfi.where(atfi.equal(sp, 1.0), x0, -unit_vector(a0))
     y1 = vector_product(z1, x1)                   # New y-axis
     x = vector(x_component(x1), x_component(y1), x_component(z1))
     y = vector(y_component(x1), y_component(y1), y_component(z1))
@@ -617,7 +617,7 @@ def axes_before_rotation(pb):
 
 
 
-@atfi.function
+
 def rotation_and_boost(ps, pb):
     """rotate and boost all momenta from the list ps to the rest frame of pb
       After the rotation, the coordinate system is defined as:
@@ -644,7 +644,7 @@ def rotation_and_boost(ps, pb):
 
 
 
-#@atfi.function
+#
 def nested_rotation_and_boost(ps, axes, boost):
     """Helper function for rotation_and_boost. It applies rotation_and_boost iteratively on nested lists
 
@@ -666,7 +666,7 @@ def nested_rotation_and_boost(ps, axes, boost):
 
 
 
-@atfi.function
+
 def euler_angles(x1, y1, z1, x2, y2, z2):
     """Calculate Euler angles (phi, theta, psi in the ZYZ convention) which transform the coordinate basis (x1, y1, z1)
       to the basis (x2, y2, z2). Both x1,y1,z1 and x2,y2,z2 are assumed to be orthonormal and right-handed.
@@ -686,7 +686,7 @@ def euler_angles(x1, y1, z1, x2, y2, z2):
 
 
 
-@atfi.function
+
 def helicity_angles_3body(pa, pb, pc):
     """Calculate 4 helicity angles for the 3-body D->ABC decay defined as:
       theta_r, phi_r : polar and azimuthal angles of the AB resonance in the D rest frame
@@ -717,7 +717,7 @@ def helicity_angles_3body(pa, pb, pc):
 
 
 
-@atfi.function
+
 def cos_helicity_angle(p1, p2):
     """The helicity angle is defined as the angle between one of the two momenta in the p1+p2 rest frame
       with respect to the momentum of the p1+p2 system in the decaying particle rest frame (ptot)
@@ -735,7 +735,7 @@ def cos_helicity_angle(p1, p2):
 
 
 
-@atfi.function
+
 def azimuthal_4body_angle(p1, p2, p3, p4):
     """Calculates the angle between the plane defined by (p1,p2) and (p3,p4)
 
@@ -759,7 +759,7 @@ def azimuthal_4body_angle(p1, p2, p3, p4):
 
 
 
-@atfi.function
+
 def helicity_angles_4body(pa, pb, pc, pd):
     """Calculate 4 helicity angles for the 4-body E->ABCD decay defined as:
       theta_ab, phi_ab : polar and azimuthal angles of the AB resonance in the E rest frame
@@ -798,7 +798,7 @@ def helicity_angles_4body(pa, pb, pc, pd):
 
 
 
-@atfi.function
+
 def wigner_capital_d(phi, theta, psi, j, m1, m2):
     """Calculate Wigner capital-D function.
       phi,
@@ -816,12 +816,12 @@ def wigner_capital_d(phi, theta, psi, j, m1, m2):
 
     """
     i = atfi.complex(atfi.const(0), atfi.const(1))
-    return Exp(-i*atfi.cast_complex(m1/2.*phi)) * \
+    return atfi.exp(-i*atfi.cast_complex(m1/2.*phi)) * \
            atfi.cast_complex(wigner_small_d(theta, j, m1, m2)) * \
-           Exp(-i * atfi.cast_complex(m2 / 2. * psi))
+           atfi.exp(-i * atfi.cast_complex(m2 / 2. * psi))
 
 
-@atfi.function
+
 def wigner_small_d(theta, j, m1, m2):
     """Calculate Wigner small-d function. Needs sympy.
       theta : angle
@@ -840,10 +840,14 @@ def wigner_small_d(theta, j, m1, m2):
     from sympy.physics.quantum.spin import Rotation as Wigner
     d = Wigner.d(Rational(j, 2), Rational(m1, 2),
                  Rational(m2, 2), x).doit().evalf()
-    return lambdify(x, d, "tensorflow")(theta)
+    funcdict = {
+      'sin' : atfi.sin, 
+      'cos' : atfi.cos, 
+    }
+    return lambdify(x, d, funcdict)(theta)
 
 
-@atfi.function
+
 def legendre(n, var):
     """Calculate Legendre_n(var)
       var : angle
@@ -857,11 +861,11 @@ def legendre(n, var):
     from sympy.utilities.lambdify import lambdify
     from sympy import legendre
     l = legendre(Rational(n), x)
-    return lambdify(x, l, "tensorflow")(var)
+    return lambdify(x, l)(var)
 
 
 
-@atfi.function
+
 def spin_rotation_angle(pa, pb, pc, bachelor=2):
     """Calculate the angle between two spin-quantisation axes for the 3-body D->ABC decay
       aligned along the particle B and particle A.
@@ -891,7 +895,7 @@ def spin_rotation_angle(pa, pb, pc, bachelor=2):
 
 
 
-@atfi.function
+
 def helicity_amplitude_3body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambdaR, lambdaA, lambdaB, lambdaC):
     """Calculate complex helicity amplitude for the 3-body decay D->ABC
       thetaR, phiR : polar and azimuthal angles of AB resonance in D rest frame
@@ -928,8 +932,17 @@ def helicity_amplitude_3body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambd
     return h
 
 
+def clebsch(j1, m1, j2, m2, J, M):
+    """
+      Return clebsch-Gordan coefficient. Note that all arguments should be multiplied by 2
+      (e.g. 1 for spin 1/2, 2 for spin 1 etc.). Needs sympy.
+    """
+    from sympy.physics.quantum.cg import CG
+    from sympy import Rational
+    return CG(Rational(j1, 2), Rational(m1, 2), Rational(j2, 2), Rational(m2, 2), Rational(J, 2), Rational(M, 2)).doit().evalf()
 
-@atfi.function
+
+
 def helicity_couplings_from_ls(ja, jb, jc, lb, lc, bls):
     """Helicity couplings from a list of LS couplings.
         ja : spin of A (decaying) particle
@@ -955,15 +968,15 @@ def helicity_couplings_from_ls(ja, jb, jc, lb, lc, bls):
     for ls, b in bls.items():
         l = ls[0]
         s = ls[1]
-        coeff = math.sqrt((l+1)/(ja+1))*atfi.clebsch(jb, lb, jc,   -lc,  s, lb-lc)*\
-                                        atfi.clebsch( l,  0, s,  lb-lc, ja, lb-lc)
+        coeff = math.sqrt((l+1)/(ja+1))*clebsch(jb, lb, jc,   -lc,  s, lb-lc)*\
+                                        clebsch( l,  0, s,  lb-lc, ja, lb-lc)
 
         if coeff : a += atfi.complex(atfi.const(float(coeff)), atfi.const(0.)) * b
     return a
 
 
 
-@atfi.function
+
 def zemach_tensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin):
     """Zemach tensor for 3-body D->ABC decay
 
@@ -989,7 +1002,7 @@ def zemach_tensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin):
 
 
 
-@atfi.function
+
 def two_body_momentum(md, ma, mb):
     """Momentum of two-body decay products D->AB in the D rest frame
 
@@ -1001,7 +1014,11 @@ def two_body_momentum(md, ma, mb):
     return atfi.sqrt((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2))
 
 
-@atfi.function
+
+def two_body_phase_space(md, ma, mb):
+    return two_body_momentum(md, ma, mb) / 4. / md / atfi.pi()
+
+
 def complex_two_body_momentum(md, ma, mb):
     """Momentum of two-body decay products D->AB in the D rest frame.
       Output value is a complex number, analytic continuation for the

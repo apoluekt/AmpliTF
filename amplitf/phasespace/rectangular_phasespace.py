@@ -15,7 +15,6 @@
 
 import math
 import numpy as np
-import tensorflow as tf
 import amplitf.interface as atfi
 
 import sys
@@ -33,23 +32,20 @@ class RectangularPhaseSpace:
         """
         self.ranges = ranges
 
-    @atfi.function
     def inside(self, x):
         """
           Check if the point x is inside the phase space
         """
-        inside = tf.constant([True], dtype=bool)
+        inside = atfi.bool_const([True])
         for n, r in enumerate(self.ranges):
             var = self.coordinate(x, n)
-            inside = tf.logical_and(inside, tf.logical_and(
-                tf.greater(var, r[0]), tf.less(var, r[1])))
+            inside = atfi.logical_and(inside, atfi.logical_and(atfi.greater(var, r[0]), atfi.less(var, r[1])))
+
         return inside
 
-    @atfi.function
     def filter(self, x):
-        return tf.boolean_mask(x, self.inside(x))
+        return x[ self.inside(x)]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum = None):
         """
           Return TF graph for uniform sample of points within phase space.
@@ -58,12 +54,11 @@ class RectangularPhaseSpace:
             majorant : if majorant>0, add 3rd dimension to the generated tensor which is
                        uniform number from 0 to majorant. Useful for accept-reject toy MC.
         """
-        v = [tf.random.uniform([size], r[0], r[1], dtype = atfi.fptype()) for r in self.ranges]
+        v = [atfi.random_uniform([size], r[0], r[1]) for r in self.ranges]
         if maximum is not None :
-            v += [tf.random.uniform([size], 0., maximum, dtype = atfi.fptype())]
-        return tf.stack(v, axis=1)
+            v += [atfi.random_uniform([size], 0., maximum)]
+        return atfi.stack(v, axis=1)
 
-    @atfi.function
     def uniform_sample(self, size, maximum = None):
         """
           Generate uniform sample of point within phase space.
@@ -76,7 +71,6 @@ class RectangularPhaseSpace:
         """
         return self.filter(self.unfiltered_sample(size, maximum))
 
-    @atfi.function
     def rectangular_grid_sample(self, sizes):
         """
           Create a data sample in the form of rectangular grid of points within the phase space.
@@ -90,10 +84,9 @@ class RectangularPhaseSpace:
         for i, (r, s) in enumerate(zip(self.ranges, sizes)):
             v1 = (mg[i]+0.5)*(r[1]-r[0])/float(s) + r[0]
             v += [v1.reshape(size).astype('d')]
-        x = tf.stack(v, axis=1)
-        return tf.boolean_mask(x, self.inside(x))
+        x = atfi.stack(v, axis=1)
+        return self.filter(x)
 
-    @atfi.function
     def coordinate(self, sample, n):
         """
           Return coordinate number n from the input sample

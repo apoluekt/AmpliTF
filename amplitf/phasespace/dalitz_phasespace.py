@@ -15,7 +15,6 @@
 
 import math
 import numpy as np
-import tensorflow as tf
 import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 
@@ -70,7 +69,6 @@ class DalitzPhaseSpace:
             if mbcrange[0]**2 > self.minbc:
                 self.minbc = mbcrange[0]**2
 
-    @atfi.function
     def inside(self, x):
         """
           Check if the point x=(m2ab, m2bc) is inside the phase space
@@ -79,33 +77,31 @@ class DalitzPhaseSpace:
         m2bc = self.m2bc(x)
         mab = atfi.sqrt(m2ab)
 
-        inside = tf.logical_and(tf.logical_and(tf.greater(m2ab, self.minab), tf.less(m2ab, self.maxab)),
-                                tf.logical_and(tf.greater(m2bc, self.minbc), tf.less(m2bc, self.maxbc)))
+        inside = atfi.logical_and(atfi.logical_and(atfi.greater(m2ab, self.minab), atfi.less(m2ab, self.maxab)),
+                                  atfi.logical_and(atfi.greater(m2bc, self.minbc), atfi.less(m2bc, self.maxbc)))
 
         if self.macrange:
             m2ac = self.msqsum - m2ab - m2bc
-            inside = tf.logical_and(inside, tf.logical_and(tf.greater(m2ac, self.macrange[0]**2), tf.less(m2ac, self.macrange[1]**2)))
+            inside = atfi.logical_and(inside, atfi.logical_and(atfi.greater(m2ac, self.macrange[0]**2), atfi.less(m2ac, self.macrange[1]**2)))
 
         if self.symmetric:
-            inside = tf.logical_and(inside, tf.greater(m2bc, m2ab))
+            inside = atfi.logical_and(inside, atfi.greater(m2bc, m2ab))
 
         eb = (m2ab - self.ma2 + self.mb2)/2./mab
         ec = (self.md2 - m2ab - self.mc2)/2./mab
         p2b = eb**2 - self.mb2
         p2c = ec**2 - self.mc2
-        inside = tf.logical_and(inside, tf.logical_and(tf.greater(p2c, 0), tf.greater(p2b, 0)))
+        inside = atfi.logical_and(inside, atfi.logical_and(atfi.greater(p2c, 0), atfi.greater(p2b, 0)))
         pb = atfi.sqrt(p2b)
         pc = atfi.sqrt(p2c)
         e2bc = (eb+ec)**2
         m2bc_max = e2bc - (pb - pc)**2
         m2bc_min = e2bc - (pb + pc)**2
-        return tf.logical_and(inside, tf.logical_and(tf.greater(m2bc, m2bc_min), tf.less(m2bc, m2bc_max)))
+        return atfi.logical_and(inside, atfi.logical_and(atfi.greater(m2bc, m2bc_min), atfi.less(m2bc, m2bc_max)))
 
-    @atfi.function
     def filter(self, x):
-        return tf.boolean_mask(x, self.inside(x))
+        return x[self.inside(x)]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum = None):
         """
           Return TF graph for uniform sample of point within phase space.
@@ -114,14 +110,13 @@ class DalitzPhaseSpace:
             majorant : if majorant>0, add 3rd dimension to the generated tensor which is
                        uniform number from 0 to majorant. Useful for accept-reject toy MC.
         """
-        v = [tf.random.uniform([size], self.minab, self.maxab, dtype = atfi.fptype()),
-             tf.random.uniform([size], self.minbc, self.maxbc, dtype = atfi.fptype())]
+        v = [atfi.random_uniform([size], self.minab, self.maxab),
+             atfi.random_uniform([size], self.minbc, self.maxbc) ]
 
         if maximum is not None :
-            v += [tf.random.uniform([size], 0., maximum, dtype = atfi.fptype())]
-        return tf.stack(v, axis = 1)
+            v += [ atfi.random_uniform([size], 0., maximum) ]
+        return atfi.stack(v, axis = 1)
 
-    @atfi.function
     def uniform_sample(self, size, maximum = None):
         """
           Generate uniform sample of point within phase space.
@@ -134,7 +129,6 @@ class DalitzPhaseSpace:
         """
         return self.filter(self.unfiltered_sample(size, maximum))
 
-    @atfi.function
     def rectangular_grid_sample(self, size_ab, size_bc, space_to_sample="DP"):
         """
           Create a data sample in the form of rectangular grid of points within the phase space.
@@ -154,7 +148,7 @@ class DalitzPhaseSpace:
             vbc = (mgrid[0:size_ab, 0:size_bc][1] * (math.sqrt(self.maxbc) -
                                                      math.sqrt(self.minbc)) / float(size_bc) + math.sqrt(self.minbc)) ** 2.
             v = [vab.reshape(size).astype('d'), vbc.reshape(size).astype('d')]
-            dlz = tf.stack(v, axis=1)
+            dlz = atfi.stack(v, axis=1)
         elif space_to_sample == "sqDP":
             x = np.linspace(self.min_mprimeac, self.max_mprimeac, size_ab)
             y = np.linspace(self.min_thprimeac, self.max_thprimeac, size_bc)
@@ -172,25 +166,22 @@ class DalitzPhaseSpace:
             vbc = mgrid[0:size_ab, 0:size_bc][1] * \
                   (self.maxbc-self.minbc) / float(size_bc) + self.minbc
             v = [vab.reshape(size).astype('d'), vbc.reshape(size).astype('d')]
-            dlz = tf.stack(v, axis=1)
+            dlz = atfi.stack(v, axis=1)
 
         return self.filter(dlz)
  
-    @atfi.function
     def m2ab(self, sample):
         """
           Return m2ab variable (vector) for the input sample
         """
         return sample[..., 0]
 
-    @atfi.function
     def m2bc(self, sample):
         """
            Return m2bc variable (vector) for the input sample
         """
         return sample[..., 1]
 
-    @atfi.function
     def m2ac(self, sample):
         """
           Return m2ac variable (vector) for the input sample.
@@ -198,28 +189,24 @@ class DalitzPhaseSpace:
         """
         return self.msqsum - self.m2ab(sample) - self.m2bc(sample)
 
-    @atfi.function
     def cos_helicity_ab(self, sample):
         """
           Calculate cos(helicity angle) of the AB resonance
         """
         return atfk.cos_helicity_angle_dalitz(self.m2ab(sample), self.m2bc(sample), self.md, self.ma, self.mb, self.mc)
 
-    @atfi.function
     def cos_helicity_bc(self, sample):
         """
            Calculate cos(helicity angle) of the BC resonance
         """
         return atfk.cos_helicity_angle_dalitz(self.m2bc(sample), self.m2ac(sample), self.md, self.mb, self.mc, self.ma)
 
-    @atfi.function
     def cos_helicity_ac(self, sample):
         """
            Calculate cos(helicity angle) of the AC resonance
         """
         return atfk.cos_helicity_angle_dalitz(self.m2ac(sample), self.m2ab(sample), self.md, self.mc, self.ma, self.mb)
 
-    @atfi.function
     def m_prime_ac(self, sample):
         """
           Square Dalitz plot variable m'
@@ -227,14 +214,12 @@ class DalitzPhaseSpace:
         mac = atfi.sqrt(self.m2ac(sample))
         return atfi.acos(2 * (mac - math.sqrt(self.minac)) / (math.sqrt(self.maxac) - math.sqrt(self.minac)) - 1.) / math.pi
 
-    @atfi.function
     def theta_prime_ac(self, sample):
         """
           Square Dalitz plot variable theta'
         """
         return atfi.acos(self.cos_helicity_ac(sample)) / math.pi
 
-    @atfi.function
     def m_prime_ab(self, sample):
         """
           Square Dalitz plot variable m'
@@ -242,7 +227,6 @@ class DalitzPhaseSpace:
         mab = atfi.sqrt(self.m2ab(sample))
         return atfi.acos(2 * (mab - math.sqrt(self.minab)) / (math.sqrt(self.maxab) - math.sqrt(self.minab)) - 1.) / math.pi
 
-    @atfi.function
     def from_square_dalitz_plot(self, mprimeac, thprimeac):
         """
           sample: Given mprimeac and thprimeac, returns 2D tensor for (m2ab, m2bc). 
@@ -256,9 +240,8 @@ class DalitzPhaseSpace:
                     self.mb ** 4 - 2.0 * self.mb ** 2 * self.md ** 2 + self.md ** 4) / m2AC) * atfi.cos(math.pi * thprimeac) -
                     self.ma ** 2 * self.mb ** 2 + self.ma ** 2 * self.md ** 2 + self.mb ** 2 * self.mc ** 2 - self.mc ** 2 * self.md ** 2)/m2AC
         m2BC = self.msqsum - m2AC - m2AB
-        return tf.stack([m2AB, m2BC], axis=1)
+        return atfi.stack([m2AB, m2BC], axis=1)
 
-    @atfi.function
     def square_dalitz_plot_jacobian(self, sample):
         """
           sample: [mAB^2, mBC^2]
@@ -267,25 +250,22 @@ class DalitzPhaseSpace:
         mPrime = self.m_prime_ac(sample)
         thPrime = self.theta_prime_ac(sample)
 
-        diff_AC = tf.cast(atfi.sqrt(self.maxac) - atfi.sqrt(self.minac), atfi.fptype())
+        diff_AC = atfi.cast_real(atfi.sqrt(self.maxac) - atfi.sqrt(self.minac))
         mAC = atfi.const(0.5) * diff_AC * (Const(1.) + atfi.cos(atfi.pi() * mPrime)
-                                           ) + tf.cast(atfi.sqrt(self.minac), atfi.fptype())
+                                           ) + atfi.cast_real(atfi.sqrt(self.minac))
         mACSq = mAC*mAC
 
-        eAcmsAC = atfi.const(0.5) * (mACSq - tf.cast(self.mc2,
-                                                     atfi.fptype()) + tf.cast(self.ma2, atfi.fptype())) / mAC
-        eBcmsAC = atfi.const(0.5) * (tf.cast(self.md, atfi.fptype()) **
-                                     2. - mACSq - tf.cast(self.mb2, atfi.fptype())) / mAC
+        eAcmsAC = atfi.const(0.5) * (mACSq - atfi.cast_real(self.mc2) + atfi.cast_real(self.ma2)) / mAC
+        eBcmsAC = atfi.const(0.5) * (atfi.cast_real(self.md, atfi.fptype()) ** 2. - mACSq - atfi.cast_real(self.mb2)) / mAC
 
-        pAcmsAC = atfi.sqrt(eAcmsAC ** 2. - tf.cast(self.ma2, atfi.fptype()))
-        pBcmsAC = atfi.sqrt(eBcmsAC ** 2. - tf.cast(self.mb2, atfi.fptype()))
+        pAcmsAC = atfi.sqrt(eAcmsAC ** 2. - atfi.cast_real(self.ma2))
+        pBcmsAC = atfi.sqrt(eBcmsAC ** 2. - atfi.cast_real(self.mb2))
 
         deriv1 = Pi() * atfi.const(0.5) * diff_AC * atfi.sin(atfi.pi() * mPrime)
         deriv2 = Pi() * atfi.sin(atfi.pi() * thPrime)
 
         return atfi.const(4.) * pAcmsAC * pBcmsAC * mAC * deriv1 * deriv2
 
-    @atfi.function
     def invariant_mass_jacobian(self, sample):
         """
           sample: [mAB^2, mBC^2]
@@ -293,14 +273,12 @@ class DalitzPhaseSpace:
         """
         return atfi.const(4.) * atfi.sqrt(self.m2ab(sample)) * atfi.sqrt(self.m2bc(sample))
 
-    @atfi.function
     def theta_prime_ab(self, sample):
         """
           Square Dalitz plot variable theta'
         """
         return atfi.acos(-self.cos_helicity_ab(sample)) / math.pi
 
-    @atfi.function
     def m_prime_bc(self, sample):
         """
           Square Dalitz plot variable m'
@@ -308,21 +286,18 @@ class DalitzPhaseSpace:
         mbc = atfi.sqrt(self.m2bc(sample))
         return atfi.acos(2 * (mbc - math.sqrt(self.minbc)) / (math.sqrt(self.maxbc) - math.sqrt(self.minbc)) - 1.) / math.pi
 
-    @atfi.function
     def theta_prime_bc(self, sample):
         """
           Square Dalitz plot variable theta'
         """
         return atfi.acos(-self.cos_helicity_bc(sample)) / math.pi
 
-    @atfi.function
     def from_vectors(self, m2ab, m2bc):
         """
           Create Dalitz plot tensor from two vectors of variables, m2ab and m2bc
         """
-        return tf.stack([m2ab, m2bc], axis=1)
+        return atfi.stack([m2ab, m2bc], axis=1)
 
-    @atfi.function
     def final_state_momenta(self, m2ab, m2bc):
         """
           Calculate 4-momenta of final state tracks in a certain reference frame

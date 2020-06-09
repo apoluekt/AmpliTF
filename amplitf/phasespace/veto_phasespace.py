@@ -15,7 +15,7 @@
 
 import math
 import numpy as np
-import tensorflow as tf
+
 import amplitf.interface as atfi
 
 import sys

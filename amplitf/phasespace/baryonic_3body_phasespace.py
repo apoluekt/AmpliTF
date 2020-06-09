@@ -15,7 +15,6 @@
 
 import math
 import numpy as np
-import tensorflow as tf
 import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 from amplitf.phasespace.dalitz_phasespace import DalitzPhaseSpace

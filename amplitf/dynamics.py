@@ -13,11 +13,30 @@
 # limitations under the License.
 # ==============================================================================
 
-import tensorflow as tf
+#import tensorflow as tf
 import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 
-@atfi.function
+
+
+def density(ampl):
+    """ density for a complex amplitude """
+    return atfi.abs(ampl)**2
+
+
+
+def polar(a, ph):
+    """ Create a complex number from a magnitude and a phase """
+    return atfi.complex(a*atfi.cos(ph), a*atfi.sin(ph))
+
+
+
+def argument(c):
+    """ Return argument (phase) of a complex number """
+    return atan2(imag(c), real(c))
+
+
+
 def helicity_amplitude(x, spin):
     """
     Helicity amplitude for a resonance in scalar-scalar state
@@ -37,19 +56,19 @@ def helicity_amplitude(x, spin):
     return None
 
 
-@atfi.function
+
 def relativistic_breit_wigner(m2, mres, wres):
     """
     Relativistic Breit-Wigner 
     """
-    if wres.dtype is atfi.ctype():
-        return tf.math.reciprocal(atfi.cast_complex(mres*mres - m2) - atfi.complex(atfi.const(0.), mres) * wres)
-    if wres.dtype is atfi.fptype():
-        return tf.math.reciprocal(atfi.complex(mres * mres - m2, -mres * wres))
-    return None
+    #if wres.dtype is atfi.ctype():
+    return 1./(atfi.cast_complex(mres*mres - m2) - atfi.complex(atfi.const(0.), mres) * atfi.cast_complex(wres))
+    #if wres.dtype is atfi.fptype():
+    #    return 1./(atfi.complex(mres * mres - m2, -mres * wres))
+    #return None
 
 
-@atfi.function
+
 def blatt_weisskopf_ff(q, q0, d, l):
     """
     Blatt-Weisskopf formfactor for intermediate resonance
@@ -74,7 +93,7 @@ def blatt_weisskopf_ff(q, q0, d, l):
     return atfi.sqrt(hankel1(z0) / hankel1(z))
 
 
-@atfi.function
+
 def mass_dependent_width(m, m0, gamma0, p, p0, ff, l):
     """
     mass-dependent width for BW amplitude
@@ -85,7 +104,7 @@ def mass_dependent_width(m, m0, gamma0, p, p0, ff, l):
     if l >= 3 : return gamma0*((p/p0)**(2*l+1))*(m0/m)*(ff**2)
 
 
-@atfi.function
+
 def orbital_barrier_factor(p, p0, l):
     """
     Orbital barrier factor
@@ -95,7 +114,7 @@ def orbital_barrier_factor(p, p0, l):
     if l >= 2 : return (p/p0)**l
 
 
-@atfi.function
+
 def breit_wigner_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barrier_factor=True, ma0=None, md0=None):
     """
     Breit-Wigner amplitude with Blatt-Weisskopf formfactors, mass-dependent width and orbital barriers
@@ -114,10 +133,11 @@ def breit_wigner_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barri
         b1 = orbital_barrier_factor(p, p0, lr)
         b2 = orbital_barrier_factor(q, q0, ld)
         ff *= b1*b2
+    #print(bw, ff)
     return bw*atfi.complex(ff, atfi.const(0.))
 
 
-@atfi.function
+
 def subthreshold_breit_wigner_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barrier_factor=True):
     """
     Breit-Wigner amplitude (with the mass under kinematic threshold) 
@@ -144,7 +164,7 @@ def subthreshold_breit_wigner_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, 
     return bw*atfi.complex(ff, atfi.const(0.))
 
 
-@atfi.function
+
 def exponential_nonresonant_lineshape(m2, m0, alpha, ma, mb, mc, md, lr, ld, barrierFactor=True):
     """
     Exponential nonresonant amplitude with orbital barriers
@@ -162,7 +182,7 @@ def exponential_nonresonant_lineshape(m2, m0, alpha, ma, mb, mc, md, lr, ld, bar
         return atfi.complex(atfi.exp(-alpha * (m2 - m0 ** 2)), atfi.const(0.))
 
 
-@atfi.function
+
 def polynomial_nonresonant_lineshape(m2, m0, coeffs, ma, mb, mc, md, lr, ld, barrierFactor=True):
     """
     2nd order polynomial nonresonant amplitude with orbital barriers
@@ -183,7 +203,7 @@ def polynomial_nonresonant_lineshape(m2, m0, coeffs, ma, mb, mc, md, lr, ld, bar
         return poly(m - m0, coeffs)
 
 
-@atfi.function
+
 def gounaris_sakurai_lineshape(s, m, gamma, m_pi):
     """
       Gounaris-Sakurai shape for rho->pipi
@@ -218,7 +238,7 @@ def gounaris_sakurai_lineshape(s, m, gamma, m_pi):
     return atfi.complex(r, i)
 
 
-@atfi.function
+
 def flatte_lineshape(s, m, g1, g2, ma1, mb1, ma2, mb2):
     """
       Flatte line shape
@@ -236,7 +256,7 @@ def flatte_lineshape(s, m, g1, g2, ma1, mb1, ma2, mb2):
     return relativistic_breit_wigner(s, m, gamma)
 
 
-@atfi.function
+
 def special_flatte_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barrier_factor=True):
     """
     Flatte amplitude with Blatt-Weisskopf formfactors, 2 component mass-dependent width and orbital barriers as done in Pentaquark analysis for L(1405) that peaks below pK threshold.
@@ -275,7 +295,7 @@ def special_flatte_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, bar
     return bw*atfi.complex(ff, atfi.const(0.))
 
 
-@atfi.function
+
 def nonresonant_lass_lineshape(m2ab, a, r, ma, mb):
     """
       LASS line shape, nonresonant part
@@ -287,7 +307,7 @@ def nonresonant_lass_lineshape(m2ab, a, r, ma, mb):
     return ampl
 
 
-@atfi.function
+
 def resonant_lass_lineshape(m2ab, m0, gamma0, a, r, ma, mb):
     """
       LASS line shape, resonant part
@@ -303,7 +323,7 @@ def resonant_lass_lineshape(m2ab, m0, gamma0, a, r, ma, mb):
     return ampl
 
 
-@atfi.function
+
 def dabba_lineshape(m2ab, b, alpha, beta, ma, mb):
     """
       Dabba line shape

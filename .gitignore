@@ -19,3 +19,5 @@ htmlcov/
 # Visual Studio Code
 .vscode/
 *.code-workspace
+
+*.root

@@ -1,11 +1,15 @@
 import sys
-import tensorflow as tf
 
 sys.path.append("../")
-
 import amplitf.interface as atfi
 
-print( atfi.__dir__() )
+atfi.backend_tf()
 
-res = atfi.max(1, 2)
+res = atfi.max([1,1], [2,0])
 print(res)
+
+atfi.backend_numpy()
+
+res = atfi.max([1,1], [2,0])
+print(res)
+

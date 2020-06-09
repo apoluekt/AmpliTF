@@ -24,7 +24,6 @@ import amplitf.interface as atfi
 #atfi.backend_numpy()
 #atfi.backend_jax()
 #atfi.backend_tf()
-
 atfi.backend_auto()
 
 import amplitf.kinematics as atfk
@@ -51,10 +50,10 @@ if __name__ == "__main__" :
   ### Start of model description
 
   #@atfi.function
-  def model(x, kwargs) : 
-    FL  = kwargs["FL"]
-    AT2 = kwargs["AT2"]
-    S5  = kwargs["S5"]
+  def model(x, params) : 
+    FL  = params["FL"]
+    AT2 = params["AT2"]
+    S5  = params["S5"]
 
     # Get phase space variables
     cosThetaK = phsp.coordinate(x, 0)
@@ -82,11 +81,11 @@ if __name__ == "__main__" :
     return atfi.abs(pdf)
   ### End of model description
 
-  kwargs = { p.name : p.init_value for p in pars }
+  initpars = { p.name : p.init_value for p in pars }
 
   @atfi.function
   def gen_model(x) : 
-    return model(x, kwargs)
+    return model(x, initpars)
 
   atfi.set_seed(1)
 
@@ -103,8 +102,8 @@ if __name__ == "__main__" :
 
   # TF graph for unbinned negalite log likelihood (the quantity to be minimised)
   @atfi.function
-  def nll(data, norm, kwargs) : 
-    return atfl.unbinned_nll(model(data, kwargs), atfl.integral(model(norm, kwargs)))
+  def nll(data, norm, pars) : 
+    return atfl.unbinned_nll(model(data, pars), atfl.integral(model(norm, pars)))
 
   # Run MINUIT minimisation of the neg. log likelihood
   result = atfo.run_minuit(nll, pars, args = (data_sample, norm_sample), use_gradient = True)

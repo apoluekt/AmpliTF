@@ -1,14 +1,15 @@
 import sys
-import tensorflow as tf
-
 sys.path.append("../")
 
 import amplitf.interface as atfi
+
+atfi.backend_numpy()
+
 import amplitf.kinematics as atfk
 
 atfi.set_seed(2)
 
-rndvec = tf.random.uniform([32, 3], dtype = atfi.fptype())
+rndvec = atfi.random_uniform([32, 3], 0., 1.)
 
 v   = rndvec[:,0]
 th  = atfi.acos(rndvec[:, 1])

@@ -148,7 +148,8 @@ def lorentz_vector(space, time):
 
 def metric_tensor():
     """Metric tensor for Lorentz space (constant)"""
-    return atfi.const([-1., -1., -1., 1.], dtype=atfi.fptype())
+    #return atfi.const([-1., -1., -1., 1.], dtype=atfi.fptype())
+    return atfi.const([-1., -1., -1., 1.] )
 
 
 

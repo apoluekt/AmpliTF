@@ -34,7 +34,6 @@ class FourBodyAngularPhaseSpace:
         """
         pass
 
-    @atfi.function
     def inside(self, x):
         """
           Check if the point x=(cos_theta_1, cos_theta_2, phi) is inside the phase space
@@ -43,19 +42,16 @@ class FourBodyAngularPhaseSpace:
         cos2 = self.cos_theta2(x)
         phi = self.phi(x)
 
-        inside = tf.logical_and(tf.logical_and(tf.greater(cos1, -1.), tf.less(cos1, 1.)),
-                                tf.logical_and(tf.greater(cos2, -1.), tf.less(cos2, 1.)))
-        inside = tf.logical_and(inside,
-                                tf.logical_and(tf.greater(
-                                    phi, 0.), tf.less(phi, 2.*math.pi))
-                                )
+        inside = atfi.logical_and(atfi.logical_and(atfi.greater(cos1, -1.), atfi.less(cos1, 1.)),
+                                  atfi.logical_and(atfi.greater(cos2, -1.), atfi.less(cos2, 1.)))
+        inside = atfi.logical_and(inside,
+                                  atfi.logical_and(atfi.greater(phi, 0.), atfi.less(phi, 2.*math.pi))
+                                  )
         return inside
 
-    @atfi.function
     def filter(self, x):
-        return tf.boolean_mask(x, self.inside(x))
+        return x[self.inside(x)]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum = None):
         """
           Return TF graph for uniform sample of point within phase space.
@@ -65,15 +61,14 @@ class FourBodyAngularPhaseSpace:
                        uniform number from 0 to majorant. Useful for accept-reject toy MC.
         """
         v = [
-            tf.random.uniform([size], -1., 1., dtype = atfi.fptype()),
-            tf.random.uniform([size], -1., 1., dtype = atfi.fptype()),
-            tf.random.uniform([size], 0., 2. * math.pi, dtype = atfi.fptype())
+            atfi.random_uniform([size], -1., 1.),
+            atfi.random_uniform([size], -1., 1.),
+            atfi.random_uniform([size], 0., 2. * math.pi)
         ]
         if maximum is not None :
-            v += [tf.random.uniform([size], 0., maximum, dtype = atfi.fptype())]
-        return tf.stack(v, axis = 1)
+            v += [atfi.random.uniform([size], 0., maximum)]
+        return atfi.stack(v, axis = 1)
 
-    @atfi.function
     def uniform_sample(self, size, maximum = None):
         """
           Generate uniform sample of point within phase space.
@@ -86,7 +81,6 @@ class FourBodyAngularPhaseSpace:
         """
         return self.filter(self.unfiltered_sample(size, maximum))
 
-    @atfi.function
     def rectangular_grid_sample(self, size_cos_theta1, size_cos_theta2, size_phi):
         """
           Create a data sample in the form of rectangular grid of points within the phase space.
@@ -102,24 +96,21 @@ class FourBodyAngularPhaseSpace:
                    0:size_phi][2]*2.*math.pi/float(size_phi)
         v = [v1.reshape(size).astype('d'), v2.reshape(
             size).astype('d'), v3.reshape(size).astype('d')]
-        x = tf.stack(v, axis=1)
-        return tf.boolean_mask(x, self.inside(x))
+        x = atfi.stack(v, axis=1)
+        return x[self.inside(x)]
 
-    @atfi.function
     def cos_theta1(self, sample):
         """
           Return cos_theta1 variable (vector) for the input sample
         """
         return sample[..., 0]
 
-    @atfi.function
     def cos_theta2(self, sample):
         """
           Return cos_theta2 variable (vector) for the input sample
         """
         return sample[..., 1]
 
-    @atfi.function
     def phi(self, sample):
         """
           Return phi variable (vector) for the input sample

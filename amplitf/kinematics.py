@@ -15,7 +15,6 @@
 
 import sys
 import operator
-#import tensorflow as tf
 import numpy as np
 import math
 import itertools
@@ -107,12 +106,12 @@ def eta(vector):
 
 
 def vector(x, y, z):
-    """Make a 3-vector from components
-      x, y, z : vector components
+    """Make a 3-vector (tensor of shape [...,3]) from x,y,z components (tensors of shape [...])
 
-    :param x: 
-    :param y: 
-    :param z: 
+    :param x: X component of a vector (shape [...])
+    :param y: Y component of a vector (shape [...])
+    :param z: Z component of a vector (shape [...])
+    :returns: tensor representing 3-vectors of shape [...,3]
 
     """
     return atfi.stack([x, y, z], axis=-1)
@@ -124,7 +123,8 @@ def scalar(x):
     """Create a scalar (e.g. tensor with only one component) which can be used to e.g. scale a vector
     One cannot do e.g. const(2.)*vector(x, y, z), needs to do scalar(const(2))*vector(x, y, z)
 
-    :param x: 
+    :param x: tensor of shape [...]
+    :returns: tensor of shape [...,1]
 
     """
     return atfi.stack([x], axis=-1)
@@ -134,11 +134,10 @@ def scalar(x):
 
 def lorentz_vector(space, time):
     """Make a Lorentz vector from spatial and time components
-      space : 3-vector of spatial components
-      time  : time component
 
-    :param space: 
-    :param time: 
+    :param space: 3-vector of spatial components (tensor of shape [...,3])
+    :param time: time component (tensor of shape [...])
+    :returns: Lorentz vector (tensor of shape [...,4])
 
     """
     return atfi.concat([space, atfi.stack([time], axis=-1)], axis=-1)
@@ -147,7 +146,11 @@ def lorentz_vector(space, time):
 
 
 def metric_tensor():
-    """Metric tensor for Lorentz space (constant)"""
+    """Metric tensor for Lorentz space (constant)
+
+    :returns: Constant metric tensor (array of shape [1,4])
+
+    """
     #return atfi.const([-1., -1., -1., 1.], dtype=atfi.fptype())
     return atfi.const([-1., -1., -1., 1.] )
 
@@ -156,9 +159,9 @@ def metric_tensor():
 
 def mass(vector):
     """Calculate mass scalar for Lorentz 4-momentum
-      vector : input Lorentz momentum vector
 
-    :param vector: 
+    :param vector: Lorentz 4-momentum vector (array of shape [...,4])
+    :returns: invariant mass (array of shape [...])
 
     """
     return atfi.sqrt(atfi.reduce_sum(vector * vector * metric_tensor(), -1))
@@ -169,8 +172,9 @@ def mass(vector):
 def scalar_product(vec1, vec2):
     """Calculate scalar product of two 3-vectors
 
-    :param vec1: 
-    :param vec2: 
+    :param vec1: First 3-vector (array of shape [...,3])
+    :param vec2: Second 3-vector (array of shape [...,3])
+    :returns: Scalar product (array of shape [...])
 
     """
     return atfi.reduce_sum(vec1*vec2, -1)
@@ -181,8 +185,9 @@ def scalar_product(vec1, vec2):
 def vector_product(vec1, vec2):
     """Calculate vector product of two 3-vectors
 
-    :param vec1: 
-    :param vec2: 
+    :param vec1: First 3-vector (array of shape [...,3])
+    :param vec2: Second 3-vector (array of shape [...,3])
+    :returns: Vector product (array of shape [...,3])
 
     """
     return atfi.cross(vec1, vec2)
@@ -191,10 +196,11 @@ def vector_product(vec1, vec2):
 
 
 def cross_product(vec1, vec2):
-    """Calculate cross product of two 3-vectors
+    """Calculate cross product of two 3-vectors. Same as vector_product(vec1, vec2). 
 
-    :param vec1: 
-    :param vec2: 
+    :param vec1: First 3-vector (array of shape [...,3])
+    :param vec2: Second 3-vector (array of shape [...,3])
+    :returns: Vector product (array of shape [...,3])
 
     """
     return atfi.cross(vec1, vec2)
@@ -203,9 +209,10 @@ def cross_product(vec1, vec2):
 
 
 def norm(vec):
-    """Calculate norm of 3-vector
+    """Calculate norm of a 3-vector
 
-    :param vec: 
+    :param vec: 3-vector (array of shape [...,3])
+    :returns: Norm of the 3-vector (array of shape [...])
 
     """
     return atfi.sqrt(atfi.reduce_sum(vec * vec, -1))
@@ -214,9 +221,10 @@ def norm(vec):
 
 
 def p(vector):
-    """Calculate absolute value of the 4-momentum
+    """Calculate absolute value of the 4-momentum vector
 
-    :param vector: 
+    :param vector: 4-momentum (array of shape [...,4])
+    :returns: Absolute value of momentum (array of shape [...])
 
     """
     return norm(spatial_components(vector))
@@ -224,13 +232,14 @@ def p(vector):
 
 
 
-def unit_vector(vec):
+def unit_vector(vector):
     """Unit vector in the direction of vec
 
-    :param vec: 
+    :param vector: 3-vector (array of shape [...,3])
+    :returns: Unit 3-vector (array of shape [...,3])
 
     """
-    return vec / scalar(norm(vec))
+    return vector / scalar(norm(vector))
 
 
 
@@ -238,8 +247,9 @@ def unit_vector(vec):
 def perpendicular_unit_vector(vec1, vec2):
     """Unit vector perpendicular to the plane formed by vec1 and vec2
 
-    :param vec1: 
-    :param vec2: 
+    :param vec1: First 3-vector (array of shape [...,3])
+    :param vec2: Second 3-vector (array of shape [...,3])
+    :returns: Unit 3-vector (array of shape [...,3])
 
     """
     v = vector_product(vec1, vec2)
@@ -250,11 +260,11 @@ def perpendicular_unit_vector(vec1, vec2):
 
 def lorentz_boost(vector, boostvector):
     """Perform Lorentz boost
-      vector :     4-vector to be boosted
-      boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components are used)
 
-    :param vector: 
-    :param boostvector: 
+    :param vector: 4-vector to be boosted (array of shape [...,4])
+    :param boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components are used, i.e. array of shape [...,3]
+                        or [...,4])
+    :returns: Boosed 4-vector (array of shape [...,4])
 
     """
     boost = spatial_components(boostvector)
@@ -274,8 +284,9 @@ def lorentz_boost(vector, boostvector):
 def boost_to_rest(vector, boostvector):
     """Perform Lorentz boost to the rest frame of the 4-vector boostvector.
 
-    :param vector: 
-    :param boostvector: 
+    :param vector: 4-vector to be boosted (array of shape [...,4])
+    :param boostvector: boost vector defining the rest frame (array of shape [...,4])
+    :returns: boosted 4-vector (array of shape [...,4])
 
     """
     boost = -spatial_components(boostvector) / scalar(time_component(boostvector))
@@ -298,7 +309,7 @@ def boost_from_rest(vector, boostvector):
 
 
 def rotate(v, angle, axis):
-    """rotate vector around an arbitrary axis, from ROOT implementation
+    """Rotate vector around an arbitrary axis, from ROOT implementation
 
     :param v: 
     :param angle: 
@@ -335,13 +346,12 @@ def rotate(v, angle, axis):
 
 def rotate_euler(v, phi, theta, psi):
     """Perform 3D rotation of the 3-vector
-      v : vector to be rotated
-      phi, theta, psi : Euler angles in Z-Y-Z convention
 
-    :param v: 
-    :param phi: 
-    :param theta: 
-    :param psi: 
+    :param v: vector to be rotated (array of shape [...,3])
+    :param phi: Euler angle phi in Z-Y-Z convention (array of shape [...])
+    :param theta: Euler angle theta in Z-Y-Z convention (array of shape [...])
+    :param psi: Euler angle psi in Z-Y-Z convention (array of shape [...])
+    :returns: rotated vector (array of shape [...,3])
 
     """
 
@@ -382,11 +392,9 @@ def rotate_euler(v, phi, theta, psi):
 
 def rotate_lorentz_vector(v, phi, theta, psi):
     """Perform 3D rotation of the 4-vector
-      v : vector to be rotated
-      phi, theta, psi : Euler angles in Z-Y-Z convention
 
-    :param v: 
-    :param phi: 
+    :param v: 4-vector to be rotated
+    :param phi: Euler angles in Z-Y-Z convention
     :param theta: 
     :param psi: 
 
@@ -456,7 +464,7 @@ def spherical_angles(pb):
 
     """
     z1 = unit_vector(spatial_components(pb))       # New z-axis is in the direction of pb
-    theta = atfi.acos(z_component(z1))                 # Helicity angle
+    theta = atfi.acos(z_component(z1))             # Helicity angle
     phi = atfi.atan2(y_component(pb), x_component(pb))  # phi angle
     return (theta, phi)
 
@@ -946,22 +954,15 @@ def clebsch(j1, m1, j2, m2, J, M):
 
 def helicity_couplings_from_ls(ja, jb, jc, lb, lc, bls):
     """Helicity couplings from a list of LS couplings.
-        ja : spin of A (decaying) particle
-        jb : spin of B (1st decay product)
-        jc : spin of C (2nd decay product)
-        lb : B helicity
-        lc : C helicity
-        bls : dictionary of LS couplings, where:
-          keys are tuples corresponding to (L,S) pairs
-          values are values of LS couplings
-      Note that ALL j,l,s should be doubled, e.g. S=1 for spin-1/2, L=2 for p-wave etc.
+       Note that ALL j,l,s should be doubled, e.g. S=1 for spin-1/2, L=2 for p-wave etc.
 
-    :param ja: 
-    :param jb: 
-    :param jc: 
-    :param lb: 
-    :param lc: 
-    :param bls: 
+    :param ja: spin of A (decaying) particle
+    :param jb: spin of B (1st decay product)
+    :param jc: spin of C (2nd decay product)
+    :param lb: B helicity
+    :param lc: C helicity
+    :param bls: dictionary of LS couplings, where keys are tuples corresponding to (L,S) pairs, 
+                and values are values of LS couplings
 
     """
     a = 0.

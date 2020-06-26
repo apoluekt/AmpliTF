@@ -36,21 +36,18 @@ class VetoPhaseSpace:
     def dimensionality(self):
         return self.phsp.dimensionality()
 
-    @atfi.function
     def inside(self, x):
-        return tf.logical_and(
+        return atfi.logical_and(
             self.phsp.inside(x),
-            tf.logical_or(
-                tf.less(x[:, self.axis], self.bounds[0]),
-                tf.greater(x[:, self.axis], self.bounds[1])
+            atfi.logical_or(
+                atfi.less(x[:, self.axis], self.bounds[0]),
+                atfi.greater(x[:, self.axis], self.bounds[1])
             )
         )
 
-    @atfi.function
     def filter(self, x):
-        return tf.boolean_mask(x, self.inside(x))
+        return x[self.inside(x)]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum = None):
         """
           Return TF graph for uniform sample of points within phase space. 
@@ -61,7 +58,6 @@ class VetoPhaseSpace:
         """
         return self.phsp.unfiltered_sample(size, maximum)
 
-    @atfi.function
     def uniform_sample(self, size, maximum = None):
         """
           Generate uniform sample of point within phase space. 

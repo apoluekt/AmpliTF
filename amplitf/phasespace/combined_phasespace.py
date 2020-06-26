@@ -36,28 +36,18 @@ class CombinedPhaseSpace:
     def dimensionality(self):
         return self.phsp1.dimensionality() + self.phsp2.dimensionality()
 
-    @atfi.function
     def data1(self, x):
-        #print(x[..., : self.phsp1.dimensionality()])
         return x[..., : self.phsp1.dimensionality()]
-        #return tf.slice(x, [0, 0], [-1, self.phsp1.dimensionality()])
 
-    @atfi.function
     def data2(self, x):
-        #print(x[...,self.phsp1.dimensionality() : ])
         return x[...,self.phsp1.dimensionality() : ]
-        #return tf.slice(x, [0, self.phsp1.dimensionality()], [-1, self.phsp2.dimensionality()])
 
-    @atfi.function
     def inside(self, x):
-        #return tf.logical_and(self.phsp1.inside(self.data1(x)), self.phsp2.inside(self.data2(x)))
-        return self.phsp1.inside(self.data1(x))
+        return atfi.logical_and(self.phsp1.inside(self.data1(x)), self.phsp2.inside(self.data2(x)))
 
-    @atfi.function
     def filter(self, x):
-        return tf.boolean_mask(x, self.inside(x))
+        return x[self.inside(x)]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum=None):
         """
           Return TF graph for uniform sample of point within phase space. 
@@ -68,9 +58,8 @@ class CombinedPhaseSpace:
         """
         sample1 = self.phsp1.unfiltered_sample(size)
         sample2 = self.phsp2.unfiltered_sample(size, maximum)
-        return tf.concat((sample1, sample2), axis=-1)
+        return atfi.concat((sample1, sample2), axis=-1)
 
-    @atfi.function
     def uniform_sample(self, size, maximum = None):
         """
           Generate uniform sample of point within phase space. 

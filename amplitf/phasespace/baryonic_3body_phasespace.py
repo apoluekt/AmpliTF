@@ -30,28 +30,24 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
       Include 2D phase-space + 3 decay plane orientation angular variables, for full polarization treatment
     """
 
-    @atfi.function
     def cos_theta_a(self, sample):
         """
           Return thetaa variable (vector) for the input sample
         """
         return sample[..., 2]
 
-    @atfi.function
     def phi_a(self, sample):
         """
           Return phia variable (vector) for the input sample
         """
         return sample[..., 3]
 
-    @atfi.function
     def phi_bc(self, sample):
         """
           Return phibc variable (vector) for the input sample
         """
         return sample[..., 4]
 
-    @atfi.function
     def inside(self, x):
         """
           Check if the point x=(m2ab, m2bc, cos_theta_a, phi_a, phi_bc) is inside the phase space
@@ -63,45 +59,44 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
         phia = self.phi_a(x)
         phibc = self.phi_bc(x)
 
-        inside = tf.logical_and(tf.logical_and(tf.greater(m2ab, self.minab), tf.less(m2ab, self.maxab)),
-                                tf.logical_and(tf.greater(m2bc, self.minbc), tf.less(m2bc, self.maxbc)))
+        inside = atfi.logical_and(atfi.logical_and(atfi.greater(m2ab, self.minab), atfi.less(m2ab, self.maxab)),
+                                  atfi.logical_and(atfi.greater(m2bc, self.minbc), atfi.less(m2bc, self.maxbc)))
 
         if self.macrange:
             m2ac = self.msqsum - m2ab - m2bc
-            inside = tf.logical_and(inside, tf.logical_and(tf.greater(
-                m2ac, self.macrange[0]**2), tf.less(m2ac, self.macrange[1]**2)))
+            inside = atfi.logical_and(inside, atfi.logical_and(atfi.greater(
+                m2ac, self.macrange[0]**2), atfi.less(m2ac, self.macrange[1]**2)))
 
         if self.symmetric:
-            inside = tf.logical_and(inside, tf.greater(m2bc, m2ab))
+            inside = atfi.logical_and(inside, atfi.greater(m2bc, m2ab))
 
         eb = (m2ab - self.ma2 + self.mb2)/2./mab
         ec = (self.md2 - m2ab - self.mc2)/2./mab
         p2b = eb**2 - self.mb2
         p2c = ec**2 - self.mc2
-        inside = tf.logical_and(inside, tf.logical_and(
-            tf.greater(p2c, 0), tf.greater(p2b, 0)))
+        inside = atfi.logical_and(inside, atfi.logical_and(
+            atfi.greater(p2c, 0), atfi.greater(p2b, 0)))
+
         pb = atfi.sqrt(p2b)
         pc = atfi.sqrt(p2c)
         e2bc = (eb+ec)**2
         m2bc_max = e2bc - (pb - pc)**2
         m2bc_min = e2bc - (pb + pc)**2
 
-        inside_phsp = tf.logical_and(inside, tf.logical_and(
-            tf.greater(m2bc, m2bc_min), tf.less(m2bc, m2bc_max)))
+        inside_phsp = atfi.logical_and(inside, atfi.logical_and(
+            atfi.greater(m2bc, m2bc_min), atfi.less(m2bc, m2bc_max)))
 
-        inside_theta = tf.logical_and(tf.greater(
-            costhetaa, -1.), tf.less(costhetaa, 1.))
-        inside_phi = tf.logical_and(tf.logical_and(tf.greater(phia, -1.*math.pi), tf.less(phia, math.pi)),
-                                    tf.logical_and(tf.greater(phibc, -1.*math.pi), tf.less(phibc, math.pi)))
-        inside_ang = tf.logical_and(inside_theta, inside_phi)
+        inside_theta = atfi.logical_and(atfi.greater(
+            costhetaa, -1.), atfi.less(costhetaa, 1.))
+        inside_phi = atfi.logical_and(atfi.logical_and(atfi.greater(phia, -1.*math.pi), atfi.less(phia, math.pi)),
+                                      atfi.logical_and(atfi.greater(phibc, -1.*math.pi), atfi.less(phibc, math.pi)))
+        inside_ang = atfi.logical_and(inside_theta, inside_phi)
 
-        return tf.logical_and(inside_phsp, inside_ang)
+        return atfi.logical_and(inside_phsp, inside_ang)
 
-    @atfi.function
     def filter(self, x):
-        return tf.boolean_mask(x, self.inside(x))
+        return x[self.inside(x)]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum = None):
         """
           Generate uniform sample of point within phase space.
@@ -110,18 +105,17 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
             majorant : if majorant>0, add 3rd dimension to the generated tensor which is
                        uniform number from 0 to majorant. Useful for accept-reject toy MC.
         """
-        v = [tf.random.uniform([size], self.minab, self.maxab, dtype = atfi.fptype()),
-             tf.random.uniform([size], self.minbc, self.maxbc, dtype = atfi.fptype()),
-             tf.random.uniform([size], -1., 1., dtype = atfi.fptype()),
-             tf.random.uniform([size], -1. * math.pi, math.pi, dtype = atfi.fptype()),
-             tf.random.uniform([size], -1. * math.pi, math.pi, dtype = atfi.fptype())
+        v = [atfi.random_uniform([size], self.minab, self.maxab),
+             atfi.random_uniform([size], self.minbc, self.maxbc),
+             atfi.random_uniform([size], -1., 1.),
+             atfi.random_uniform([size], -1. * math.pi, math.pi),
+             atfi.random_uniform([size], -1. * math.pi, math.pi)
             ]
 
         if maximum is not None :
-            v += [tf.random.uniform([size], 0., maximum, dtype = atfi.fptype())]
-        return tf.stack(v, axis = 1)
+            v += [atfi.random_uniform([size], 0., maximum)]
+        return atfi.stack(v, axis = 1)
 
-    @atfi.function
     def final_state_momenta(self, m2ab, m2bc, costhetaa, phia, phibc):
         """
           Calculate 4-momenta of final state tracks in the 5D phase space

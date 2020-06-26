@@ -124,8 +124,8 @@ class B2DDKpiPhaseSpace:
              atfi.random_uniform([size], -math.pi, math.pi),
              ]
         if maximum is not None :
-            v += [tf.random_uniform([size], 0., maximum)]
-        return tf.stack(v, axis = 1)
+            v += [atfi.random_uniform([size], 0., maximum)]
+        return atfi.stack(v, axis = 1)
 
     def uniform_sample(self, size, maximum=None):
         """

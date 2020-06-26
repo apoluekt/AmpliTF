@@ -35,12 +35,10 @@ class LambdaPhaseSpace:
         return self.phsp.dimensionality()
 
     def inside(self, x):
-        return tf.logical_and(self.phsp.inside(x), self.func(x))
+        return atfi.logical_and(self.phsp.inside(x), self.func(x))
 
     def filter(self, x):
-#        return tf.boolean_mask(x, self.inside(x))
-        y = tf.boolean_mask(x, self.func(x))
-        return tf.boolean_mask(y, self.phsp.inside(y))
+        return x[self.inside(x)]
 
     def unfiltered_sample(self, size, maximum = None):
         """

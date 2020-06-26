@@ -74,7 +74,6 @@ class FourBodyHelicityPhaseSpace:
             self.costhbmin = costhbrange[0]
             self.costhbmax = costhbrange[1]
 
-    @atfi.function
     def simple_inside(self, x):
         """
           Check if the point x is inside the phase space
@@ -85,23 +84,20 @@ class FourBodyHelicityPhaseSpace:
         cthb = self.cos_helicity_b(x)
         phi = self.phi(x)
 
-        inside = tf.logical_and(tf.logical_and(tf.greater(ctha, self.costhamin), tf.less(ctha, self.costhamax)),
-                                tf.logical_and(tf.greater(cthb, self.costhbmin), tf.less(cthb, self.costhbmax)))
-        inside = tf.logical_and(inside,
-                                tf.logical_and(tf.greater(
-                                    phi, -math.pi), tf.less(phi, math.pi))
-                                )
+        inside = atfi.logical_and(atfi.logical_and(atfi.greater(ctha, self.costhamin), atfi.less(ctha, self.costhamax)),
+                                  atfi.logical_and(atfi.greater(cthb, self.costhbmin), atfi.less(cthb, self.costhbmax)))
+        inside = atfi.logical_and(inside,
+                                  atfi.logical_and(atfi.greater(phi, -math.pi), atfi.less(phi, math.pi))
+                                 )
 
         mb1b2max = atfi.min(atfi.cast_real(self.mb1b2max), atfi.cast_real(self.md) - ma1a2)
 
-        inside = tf.logical_and(inside, tf.logical_and(tf.greater(
-            ma1a2, self.ma1a2min), tf.less(ma1a2, self.ma1a2max)))
-        inside = tf.logical_and(inside, tf.logical_and(
-            tf.greater(mb1b2, self.mb1b2min), tf.less(mb1b2, mb1b2max)))
-
+        inside = atfi.logical_and(inside, atfi.logical_and(atfi.greater(ma1a2, self.ma1a2min), 
+                                                           atfi.less(ma1a2, self.ma1a2max)))
+        inside = atfi.logical_and(inside, atfi.logical_and(atfi.greater(mb1b2, self.mb1b2min),  
+                                                           atfi.less(mb1b2, mb1b2max)))
         return inside
 
-    @atfi.function
     def inside(self, x):
 
         inside = self.simple_inside(x)
@@ -111,22 +107,20 @@ class FourBodyHelicityPhaseSpace:
           (pa1, pa2, pb1, pb2) = self.final_state_momenta(x)
           if self.mab1range : 
             mab1 = atfk.mass(pa1 + pa2 + pb1)
-            inside = tf.logical_and(inside, tf.logical_and(
-                       tf.greater(mab1, self.mab1range[0]), tf.less(mab1, self.mab1range[1])
+            inside = atfi.logical_and(inside, atfi.logical_and(
+                       atfi.greater(mab1, self.mab1range[0]), atfi.less(mab1, self.mab1range[1])
                      ))
           if self.mab2range : 
             mab2 = atfk.mass(pa1 + pa2 + pb2)
-            inside = tf.logical_and(inside, tf.logical_and(
-                       tf.greater(mab2, self.mab2range[0]), tf.less(mab2, self.mab2range[1])
+            inside = atfi.logical_and(inside, atfi.logical_and(
+                       atfi.greater(mab2, self.mab2range[0]), atfi.less(mab2, self.mab2range[1])
                      ))
         return inside
 
-    @atfi.function
     def filter(self, x):
-        y = tf.boolean_mask(x, self.simple_inside(x))
-        return tf.boolean_mask(y, self.inside(y))
+        y = x[self.simple_inside(x)]
+        return y[self.inside(y)]
 
-    @atfi.function
     def density(self, x):
         ma1a2 = self.m_a1a2(x)
         mb1b2 = self.m_b1b2(x)
@@ -135,7 +129,6 @@ class FourBodyHelicityPhaseSpace:
         d3 = atfk.two_body_momentum(mb1b2, self.mb1, self.mb2)
         return d1*d2*d3/self.md
 
-    @atfi.function
     def bounds(self):
         return [
             (self.ma1a2min, self.ma1a2max),
@@ -145,7 +138,6 @@ class FourBodyHelicityPhaseSpace:
             (-math.pi, math.pi)
         ]
 
-    @atfi.function
     def unfiltered_sample(self, size, maximum=None):
         """
           Generate uniform sample of point within phase space.
@@ -154,17 +146,16 @@ class FourBodyHelicityPhaseSpace:
             majorant : if majorant>0, add 3rd dimension to the generated tensor which is
                        uniform number from 0 to majorant. Useful for accept-reject toy MC.
         """
-        v = [tf.random.uniform([size], self.ma1a2min, self.ma1a2max, dtype = atfi.fptype()),
-             tf.random.uniform([size], self.mb1b2min, self.mb1b2max, dtype = atfi.fptype()),
-             tf.random.uniform([size], self.costhamin, self.costhamax, dtype = atfi.fptype()),
-             tf.random.uniform([size], self.costhbmin, self.costhbmax, dtype = atfi.fptype()),
-             tf.random.uniform([size], -math.pi, math.pi, dtype = atfi.fptype()),
-             ]
+        v = [atfi.random_uniform([size], self.ma1a2min, self.ma1a2max),
+             atfi.random_uniform([size], self.mb1b2min, self.mb1b2max),
+             atfi.random_uniform([size], self.costhamin, self.costhamax),
+             atfi.random_uniform([size], self.costhbmin, self.costhbmax),
+             atfi.random_uniform([size], -math.pi, math.pi),
+            ]
         if maximum is not None :
-            v += [tf.random.uniform([size], 0., maximum, dtype = atfi.fptype())]
-        return tf.stack(v, axis = 1)
+            v += [atfi.random_uniform([size], 0., maximum)]
+        return atfi.stack(v, axis = 1)
 
-    @atfi.function
     def uniform_sample(self, size, maximum=None):
         """
           Generate uniform sample of point within phase space.
@@ -177,42 +168,36 @@ class FourBodyHelicityPhaseSpace:
         """
         return self.filter(self.unfiltered_sample(size, maximum))
 
-    @atfi.function
     def m_a1a2(self, sample):
         """
           Return m2ab variable (vector) for the input sample
         """
         return sample[..., 0]
 
-    @atfi.function
     def m_b1b2(self, sample):
         """
           Return m2bc variable (vector) for the input sample
         """
         return sample[..., 1]
 
-    @atfi.function
     def cos_helicity_a(self, sample):
         """
           Return cos(helicity angle) of the A1A2 resonance
         """
         return sample[..., 2]
 
-    @atfi.function
     def cos_helicity_b(self, sample):
         """
            Return cos(helicity angle) of the B1B2 resonance
         """
         return sample[..., 3]
 
-    @atfi.function
     def phi(self, sample):
         """
            Return phi angle between A1A2 and B1B2 planes
         """
         return sample[..., 4]
 
-    @atfi.function
     def final_state_momenta(self, x):
         """
            Return final state momenta p(A1), p(A2), p(B1), p(B2) for the decay

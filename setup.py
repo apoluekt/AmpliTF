@@ -8,7 +8,7 @@ def long_description():
 
 setuptools.setup(
     name="amplitf",
-    version="0.0-alpha1",
+    version="0.0.1-alpha",
     long_description=long_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/ComPWA/AmpliTF",

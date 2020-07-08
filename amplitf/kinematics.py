@@ -1000,6 +1000,20 @@ def zemach_tensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin):
 
 
 @atfi.function
+def two_body_momentum_squared(md, ma, mb):
+    """Squared momentum of two-body decay products D->AB in the D rest frame
+
+    :param md: 
+    :param ma: 
+    :param mb: 
+
+    """
+    return (
+        (md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2)
+    )
+
+
+@atfi.function
 def two_body_momentum(md, ma, mb):
     """Momentum of two-body decay products D->AB in the D rest frame
 
@@ -1008,7 +1022,7 @@ def two_body_momentum(md, ma, mb):
     :param mb: 
 
     """
-    return atfi.sqrt((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2))
+    return atfi.sqrt(two_body_momentum_squared(md, ma, mb))
 
 
 @atfi.function

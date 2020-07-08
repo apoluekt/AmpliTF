@@ -75,8 +75,8 @@ def blatt_weisskopf_ff(q, q0, d, l):
 
 
 @atfi.function
-def blatt_weisskopf_ff_squared(q, d, l_orbit):
-    z = atfi.pow(q * d, 2)
+def blatt_weisskopf_ff_squared(q_squared, d, l_orbit):
+    z = q_squared * d * d
 
     def _bw_ff_squared(x):
         if l_orbit == 0:

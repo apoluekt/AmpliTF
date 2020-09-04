@@ -236,7 +236,7 @@ if __name__ == "__main__" :
     #val = strategy.reduce(tf.distribute.ReduceOp.SUM, loss, axis=None)
     #print('sum is', val, type(val))
     
-    #### Run minuit code
+    #### Copy of run_minuit code
     #### Here for test purposes
     ####
     #@atfi.function
@@ -249,12 +249,12 @@ if __name__ == "__main__" :
         if func.n % 100 == 0 : print(func.n, nll_val, par)
         return nll_val
     
-    #@atfi.function
     def gradient(par) :
         for i, p in enumerate(float_pars): p.update(par[i])
         kwargs = { p.name : p() for p in float_pars }
         float_vars = [ i() for i in float_pars ]
         gradient.n += 1 
+        #@atfi.function
         def replica_gt(d):
             with tf.GradientTape() as gt : 
                 gt.watch( float_vars )
@@ -297,7 +297,9 @@ if __name__ == "__main__" :
     results["grad_calls"] = gradient.n
     results["time"] = end-start
 
-    wmode = 'a' if os.path.isfile('benchmarks.txt') else 'w'
-    with open('benchmarks.txt', wmode) as f:
+    print(results)
+
+    wmode = 'a' if os.path.isfile('times.txt') else 'w'
+    with open('times.txt', wmode) as f:
         f.write(f"{argsp.strategy}, gradient: {use_gradient} --> {results['time']}")
     exit()

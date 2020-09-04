@@ -214,13 +214,12 @@ if __name__ == "__main__" :
 
     # Create toy MC data sample
     gen_sample = atft.run_toymc(gen_model, phsp, toy_sample, maximum, chunk = 1000000)
-    print(gen_sample)
 
     @atfi.function
     def nll(data, norm, params) : 
       return atfl.unbinned_nll(model(data, params), atfl.integral(model(norm, params)))
 
-    result = atfo.run_minuit(nll, pars, args = (gen_sample, norm_sample), use_gradient = True)
+    result = atfo.run_minuit(nll, pars, args = (gen_sample, norm_sample), use_gradient = False)
 
     # Store fit result in a text file
     print(result)
@@ -228,7 +227,7 @@ if __name__ == "__main__" :
     print(f"{result['time']/result['func_calls']} sec per function call")
 
     fittedpars = { k : atfi.const(v[0]) for k,v in result["params"].items() }
-
+    exit()
     #@atfi.function
     def fit_model(x, switches = 7*[1]) : 
       return model(x, fittedpars, switches = switches )

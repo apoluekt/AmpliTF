@@ -16,6 +16,7 @@
 #import tensorflow as tf
 import numpy as np
 import amplitf.interface as atfi
+import inspect
 
 from iminuit import Minuit
 
@@ -114,10 +115,10 @@ def write_fit_results(pars, results, filename) :
     f = open(filename, "w")
     for p in pars :
         if not p.name in results["params"] : continue
-        s = "%s " % p.par_name
-        for i in results["params"][p.par_name]:
+        s = "%s " % p.name
+        for i in results["params"][p.name]:
             s += "%f " % i
         f.write(s + "\n")
-    s = "loglh %f %f" % (results["loglh"], results["initlh"])
+    s = "loglh %f %f" % (results["loglh"], results["loglh"])
     f.write(s + "\n")
     f.close()

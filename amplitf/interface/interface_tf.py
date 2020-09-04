@@ -221,4 +221,5 @@ def gradient(par) :
         nll_val = _nll(*_args, kwargs)
     g = gt.gradient(nll_val, float_vars, unconnected_gradients=tf.UnconnectedGradients.ZERO)
     g_val = [ i.numpy() for i in g ]
+    del gt
     return g_val

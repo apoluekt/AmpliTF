@@ -235,7 +235,10 @@ if __name__ == "__main__" :
     #print('Per replica loss is ', loss)
     #val = strategy.reduce(tf.distribute.ReduceOp.SUM, loss, axis=None)
     #print('sum is', val, type(val))
-
+    
+    #### Run minuit code
+    #### Here for test purposes
+    ####
     #@atfi.function
     def func(par) :
         for i,p in enumerate(float_pars) : p.update(par[i])
@@ -268,7 +271,6 @@ if __name__ == "__main__" :
     limit = [ (p.lower_limit, p.upper_limit) for p in float_pars ]
     name = [ p.name for p in float_pars ]
     
-    #minuit = Minuit.from_array_func(func, start, error = error, limit = limit, name = name, errordef = 0.5)
     if use_gradient : 
         minuit = Minuit.from_array_func(func, start, error = error, limit = limit, name = name, grad = gradient, errordef = 0.5)
     else : 
@@ -295,8 +297,7 @@ if __name__ == "__main__" :
     results["grad_calls"] = gradient.n
     results["time"] = end-start
 
-    tt = end - start0
     wmode = 'a' if os.path.isfile('benchmarks.txt') else 'w'
     with open('benchmarks.txt', wmode) as f:
-        f.write(f"{argsp.strategy}, gradient: {use_gradient} --> {tt} --> minimization: {results['time']}, {results['time']/results['func_calls']} sec per function call\n")
+        f.write(f"{argsp.strategy}, gradient: {use_gradient} --> {results['time']}")
     exit()

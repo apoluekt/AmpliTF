@@ -18,11 +18,6 @@ import numpy as np
 import tensorflow as tf
 import amplitf.interface as atfi
 
-import sys
-import os
-sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
-
 class FourBodyAngularPhaseSpace:
     """
     Class for angular phase space of 4-body X->(AB)(CD) decay (3D).

@@ -75,6 +75,32 @@ def blatt_weisskopf_ff(q, q0, d, l):
 
 
 @atfi.function
+def blatt_weisskopf_ff_squared(q_squared, d, l_orbit):
+    z = q_squared * d * d
+
+    def _bw_ff_squared(x):
+        if l_orbit == 0:
+            return atfi.const(1.0)
+        if l_orbit == 1:
+            return 2 * x / (x + 1)
+        if l_orbit == 2:
+            return 13 * x * x / ((x - 3) * (x - 3) + 9 * x)
+        if l_orbit == 3:
+            return (
+                277 * x * x * x / (x * (x - 15) * (x - 15) + 9 * (2 * x - 5) * (2 * x - 5))
+            )
+        if l_orbit == 4:
+            return (
+                12746 * x * x * x * x
+                / (
+                    (x * x - 45 * x + 105) * (x * x - 45 * x + 105)
+                    + 25 * x * (2 * x - 21) * (2 * x - 21)
+                )
+            )
+
+    return _bw_ff_squared(z)
+
+@atfi.function
 def mass_dependent_width(m, m0, gamma0, p, p0, ff, l):
     """
     mass-dependent width for BW amplitude

@@ -19,11 +19,6 @@ import tensorflow as tf
 import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 
-import sys
-import os
-sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
-
-
 class FourBodyHelicityPhaseSpace:
     """
     Class for 4-body decay phase space D->(A1 A2)(B1 B2) expressed as:

@@ -151,6 +151,17 @@ def metric_tensor():
     return tf.constant([-1., -1., -1., 1.], dtype=atfi.fptype())
 
 
+@atfi.function
+def mass_squared(vector):
+    """Calculate mass scalar for Lorentz 4-momentum
+      vector : input Lorentz momentum vector
+
+    :param vector: 
+
+    """
+    return tf.reduce_sum(vector * vector * metric_tensor(), -1)
+
+
 
 @atfi.function
 def mass(vector):
@@ -160,8 +171,7 @@ def mass(vector):
     :param vector: 
 
     """
-    return atfi.sqrt(tf.reduce_sum(vector * vector * metric_tensor(), -1))
-
+    return atfi.sqrt(mass_squared(vector))
 
 
 @atfi.function
@@ -816,9 +826,9 @@ def wigner_capital_d(phi, theta, psi, j, m1, m2):
 
     """
     i = atfi.complex(atfi.const(0), atfi.const(1))
-    return Exp(-i*atfi.cast_complex(m1/2.*phi)) * \
+    return atfi.exp(-i*atfi.cast_complex(m1/2.*phi)) * \
            atfi.cast_complex(wigner_small_d(theta, j, m1, m2)) * \
-           Exp(-i * atfi.cast_complex(m2 / 2. * psi))
+           atfi.exp(-i * atfi.cast_complex(m2 / 2. * psi))
 
 
 @atfi.function
@@ -990,6 +1000,20 @@ def zemach_tensor(m2ab, m2ac, m2bc, m2d, m2a, m2b, m2c, spin):
 
 
 @atfi.function
+def two_body_momentum_squared(md, ma, mb):
+    """Squared momentum of two-body decay products D->AB in the D rest frame
+
+    :param md: 
+    :param ma: 
+    :param mb: 
+
+    """
+    return (
+        (md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2)
+    )
+
+
+@atfi.function
 def two_body_momentum(md, ma, mb):
     """Momentum of two-body decay products D->AB in the D rest frame
 
@@ -998,7 +1022,7 @@ def two_body_momentum(md, ma, mb):
     :param mb: 
 
     """
-    return atfi.sqrt((md ** 2 - (ma + mb) ** 2) * (md ** 2 - (ma - mb) ** 2) / (4 * md ** 2))
+    return atfi.sqrt(two_body_momentum_squared(md, ma, mb))
 
 
 @atfi.function

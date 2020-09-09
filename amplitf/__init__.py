@@ -12,11 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+__all__ = [
+    "interface",
+    "kinematics",
+    "toymc",
+    "phasespace",
+    "dynamics",
+    "optimisation",
+    "likelihood"
+]
 
-from amplitf.interface import *
-from amplitf.kinematics import *
-from amplitf.toymc import *
-from amplitf.phasespace import *
-from amplitf.dynamics import *
-from amplitf.optimisation import *
-from amplitf.likelihood import *
+from . import interface
+from . import kinematics
+from . import toymc
+from . import phasespace
+from . import dynamics
+from . import optimisation
+from . import likelihood

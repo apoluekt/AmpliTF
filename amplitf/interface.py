@@ -52,7 +52,7 @@ _interface_dict = {
   "abs" : "tf.abs",
   "max" : "tf.maximum",
   "min" : "tf.minimum",
-  "complex" : "tf.complex",
+  #"complex" : "tf.complex",
   "conjugate" : "tf.conj",
   "real" : "tf.real",
   "imaginary" : "tf.imag",
@@ -70,26 +70,31 @@ _interface_dict = {
   "pow" : "tf.pow",
   "zeros" : "tf.zeros_like",
   "ones" : "tf.ones_like",
+  "cross" : "tf.linalg.cross", 
+  "reduce_max" : "tf.reduce_max", 
+  "reduce_sum" : "tf.reduce_sum", 
+  "reduce_mean" : "tf.reduce_mean", 
+#  "stack" :  "tf.stack", 
+#  "concat" : "tf.concat", 
+  "where" :  "tf.where", 
+  "equal" :  "tf.equal", 
+  "logical_and" : "tf.logical_and", 
+  "logical_or" : "tf.logical_or", 
+  "greater" : "tf.greater", 
+  "less" :    "tf.less", 
 }
 
 m = sys.modules[__name__]
 for k,v in _interface_dict.items() : 
   fun = exec(f"""
-@function
 def {k}(*args) : 
   return {v}(*args)
   """)
   m.__dict__[k] = locals()[f"{k}"]
 
 @function
-def density(ampl):
-    """ density for a complex amplitude """
-    return abs(ampl)**2
-
-@function
-def polar(a, ph):
-    """ Create a complex number from a magnitude and a phase """
-    return complex(a*cos(ph), a*sin(ph))
+def complex(re, im) : 
+    return tf.complex(re, im)
 
 @function
 def cast_complex(re):
@@ -107,27 +112,26 @@ def const(c):
     return tf.constant(c, dtype=fptype())
 
 @function
+def bool_const(c):
+    """ Declare constant """
+    return tf.constant(c, dtype=bool)
+
+@function
 def invariant(c):
     """ Declare invariant """
     return tf.constant([c], dtype=fptype())
 
 @function
-def pi():
-    return const(np.pi)
+def concat(x, axis = 0) : 
+    return tf.concat(x, axis = axis)
 
 @function
-def argument(c):
-    """ Return argument (phase) of a complex number """
-    return atan2(imag(c), real(c))
+def stack(x, axis = 0) : 
+    return tf.stack(x, axis = axis)
 
-def clebsch(j1, m1, j2, m2, J, M):
-    """
-      Return clebsch-Gordan coefficient. Note that all arguments should be multiplied by 2
-      (e.g. 1 for spin 1/2, 2 for spin 1 etc.). Needs sympy.
-    """
-    from sympy.physics.quantum.cg import CG
-    from sympy import Rational
-    return CG(Rational(j1, 2), Rational(m1, 2), Rational(j2, 2), Rational(m2, 2), Rational(J, 2), Rational(M, 2)).doit().evalf()
+@function
+def pi():
+    return const(np.pi)
 
 @function
 def interpolate(t, c):

@@ -938,6 +938,16 @@ def helicity_amplitude_3body(thetaR, phiR, thetaA, phiA, spinD, spinR, mu, lambd
     return h
 
 
+def clebsch(j1, m1, j2, m2, J, M):
+    """
+      Return clebsch-Gordan coefficient. Note that all arguments should be multiplied by 2
+      (e.g. 1 for spin 1/2, 2 for spin 1 etc.). Needs sympy.
+    """
+    from sympy.physics.quantum.cg import CG
+    from sympy import Rational
+    return CG(Rational(j1, 2), Rational(m1, 2), Rational(j2, 2), Rational(m2, 2), Rational(J, 2), Rational(M, 2)).doit().evalf()
+
+
 
 @atfi.function
 def helicity_couplings_from_ls(ja, jb, jc, lb, lc, bls):
@@ -965,8 +975,8 @@ def helicity_couplings_from_ls(ja, jb, jc, lb, lc, bls):
     for ls, b in bls.items():
         l = ls[0]
         s = ls[1]
-        coeff = math.sqrt((l+1)/(ja+1))*atfi.clebsch(jb, lb, jc,   -lc,  s, lb-lc)*\
-                                        atfi.clebsch( l,  0, s,  lb-lc, ja, lb-lc)
+        coeff = math.sqrt((l+1)/(ja+1))*clebsch(jb, lb, jc,   -lc,  s, lb-lc)*\
+                                        clebsch( l,  0, s,  lb-lc, ja, lb-lc)
 
         if coeff : a += atfi.complex(atfi.const(float(coeff)), atfi.const(0.)) * b
     return a

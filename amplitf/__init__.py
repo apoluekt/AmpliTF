@@ -15,17 +15,15 @@
 __all__ = [
     "interface",
     "kinematics",
-    "toymc",
     "phasespace",
     "dynamics",
-    "optimisation",
-    "likelihood"
+    "likelihood", 
+    "dalitz_decomposition", 
 ]
 
 from . import interface
 from . import kinematics
-from . import toymc
 from . import phasespace
 from . import dynamics
-from . import optimisation
 from . import likelihood
+from . import dalitz_decomposition

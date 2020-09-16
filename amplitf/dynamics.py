@@ -18,6 +18,23 @@ import amplitf.interface as atfi
 import amplitf.kinematics as atfk
 
 @atfi.function
+def density(ampl):
+    """ density for a complex amplitude """
+    return abs(ampl)**2
+
+@atfi.function
+def polar(a, ph):
+    """ Create a complex number from a magnitude and a phase """
+    return complex(a*cos(ph), a*sin(ph))
+
+
+@atfi.function
+def argument(c):
+    """ Return argument (phase) of a complex number """
+    return atan2(imag(c), real(c))
+
+
+@atfi.function
 def helicity_amplitude(x, spin):
     """
     Helicity amplitude for a resonance in scalar-scalar state

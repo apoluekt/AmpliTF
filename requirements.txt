@@ -1,4 +1,3 @@
-iminuit
 numpy
 sympy
 tensorflow>=2.0

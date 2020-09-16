@@ -8,15 +8,14 @@ def long_description():
 
 setuptools.setup(
     name="amplitf",
-    version="0.0.1-alpha2",
+    version="0.0.2",
     long_description=long_description(),
     long_description_content_type="text/markdown",
-    url="https://github.com/ComPWA/AmpliTF",
+    url="https://github.com/apoluekt/AmpliTF",
     packages=setuptools.find_packages(),
     license="GPLv3 or later",
     python_requires=">=3.6",
     install_requires=[
-        "iminuit",
         "numpy",
         "sympy",
         "tensorflow>=2.0"

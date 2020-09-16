@@ -57,7 +57,7 @@ def helicity_amplitude(x, spin):
 @atfi.function
 def relativistic_breit_wigner(m2, mres, wres):
     """
-    Relativistic Breit-Wigner 
+    Relativistic Breit-Wigner
     """
     if wres.dtype is atfi.ctype():
         return tf.math.reciprocal(atfi.cast_complex(mres*mres - m2) - atfi.complex(atfi.const(0.), mres) * wres)
@@ -161,9 +161,37 @@ def breit_wigner_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barri
 
 
 @atfi.function
+def breit_wigner_decay_lineshape(m2, m0, gamma0, ma, mb, meson_radius, l_orbit):
+    """
+    Breit-Wigner amplitude with Blatt-Weisskopf form factor for the decay products,
+    mass-dependent width and orbital barriers
+
+    Note: This function does not include the production form factor.
+    """
+    inv_mass = atfi.sqrt(m2)
+    q_squared = atfk.two_body_momentum_squared(inv_mass, ma, mb)
+    q0_squared = atfk.two_body_momentum_squared(m0, ma, mb)
+    ff2 = blatt_weisskopf_ff_squared(q_squared, meson_radius, l_orbit)
+    ff02 = blatt_weisskopf_ff_squared(q0_squared, meson_radius, l_orbit)
+    width = gamma0 * (m0 / inv_mass) * (ff2 / ff02)
+    # So far its all in float64,
+    # but for the sqrt operation it has to be converted to complex
+    width = atfi.complex(
+        width, atfi.const(0.0)
+    ) * atfi.sqrt(
+        atfi.complex(
+            (q_squared / q0_squared), atfi.const(0.0),
+        )
+    )
+    return relativistic_breit_wigner(
+        m2, m0, width
+    ) * atfi.complex(m0 * gamma0 * atfi.sqrt(ff2), atfi.const(0.0))
+
+
+@atfi.function
 def subthreshold_breit_wigner_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, barrier_factor=True):
     """
-    Breit-Wigner amplitude (with the mass under kinematic threshold) 
+    Breit-Wigner amplitude (with the mass under kinematic threshold)
     with Blatt-Weisskopf formfactors, mass-dependent width and orbital barriers
     """
     m = atfi.sqrt(m2)
@@ -284,9 +312,9 @@ def special_flatte_lineshape(m2, m0, gamma0, ma, mb, mc, md, dr, dd, lr, ld, bar
     """
     Flatte amplitude with Blatt-Weisskopf formfactors, 2 component mass-dependent width and orbital barriers as done in Pentaquark analysis for L(1405) that peaks below pK threshold.
     ma = [ma1, ma2] and mb = [mb1, mb2]
-    NB: The dominant decay for a given resonance should be the 2nd channel i.e. R -> a2 b2. 
+    NB: The dominant decay for a given resonance should be the 2nd channel i.e. R -> a2 b2.
     This is because (as done in pentaquark analysis) in calculating p0 (used in Blatt-Weisskopf FF) for both channels, the dominant decay is used.
-    Another assumption made in pentaquark is equal couplings ie. gamma0_1 = gamma0_2 = gamma and only differ in phase space factors 
+    Another assumption made in pentaquark is equal couplings ie. gamma0_1 = gamma0_2 = gamma and only differ in phase space factors
     """
     ma1, ma2 = ma[0], ma[1]
     mb1, mb2 = mb[0], mb[1]

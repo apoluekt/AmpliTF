@@ -15,7 +15,14 @@ The package is compatible with TensorFlow v2.
    * NumPy
    * SymPy
 
-ROOT is not required anymore. 
+## Installation
+
+After checking out the package from git, run
+
+``$ python setup.py build``
+
+``$ python setup.py install
+``
 
 ## Links
 

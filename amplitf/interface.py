@@ -21,8 +21,8 @@ import sys
 _fptype = tf.float64
 _ctype = tf.complex128
 
-#function = tf.function(autograph=False, experimental_relax_shapes=True)
-function = tf.function(autograph=False)
+function = tf.function(autograph=False, experimental_relax_shapes=True)
+#function = tf.function(autograph=False)
 #def function(f) : return f
 
 def set_single_precision():
@@ -92,44 +92,44 @@ def {k}(*args) :
   """)
   m.__dict__[k] = locals()[f"{k}"]
 
-@function
+#@function
 def complex(re, im) : 
     return tf.complex(re, im)
 
-@function
+#@function
 def cast_complex(re):
     """ Cast a real number to complex """
     return tf.cast(re, dtype=ctype())
 
-@function
+#@function
 def cast_real(re):
     """ Cast a number to real """
     return tf.cast(re, dtype=fptype())
 
-@function
+#@function
 def const(c):
     """ Declare constant """
     return tf.constant(c, dtype=fptype())
 
-@function
+#@function
 def bool_const(c):
     """ Declare constant """
     return tf.constant(c, dtype=bool)
 
-@function
+#@function
 def invariant(c):
     """ Declare invariant """
     return tf.constant([c], dtype=fptype())
 
-@function
+#@function
 def concat(x, axis = 0) : 
     return tf.concat(x, axis = axis)
 
-@function
+#@function
 def stack(x, axis = 0) : 
     return tf.stack(x, axis = axis)
 
-@function
+#@function
 def pi():
     return const(np.pi)
 

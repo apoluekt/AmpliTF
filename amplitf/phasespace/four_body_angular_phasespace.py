@@ -123,3 +123,6 @@ class FourBodyAngularPhaseSpace:
 
     def dimensionality(self):
         return 3
+
+    def bounds(self) : 
+        return [ (-1., 1.), (-1., 1.), (0., 2. * math.pi) ]

@@ -107,13 +107,13 @@ def eta(vector):
 
 @atfi.function
 def vector(x, y, z):
-    """Make a 3-vector from components
-      x, y, z : vector components
+    """
+    Make a 3-vector from components. Components are stacked along the last index. 
 
-    :param x: 
-    :param y: 
-    :param z: 
-
+    :param x: x-component of the vector
+    :param y: y-component of the vector
+    :param z: z-component of the vector
+    :returns: 3-vector
     """
     return tf.stack([x, y, z], axis=-1)
 
@@ -121,10 +121,13 @@ def vector(x, y, z):
 
 @atfi.function
 def scalar(x):
-    """Create a scalar (e.g. tensor with only one component) which can be used to e.g. scale a vector
-    One cannot do e.g. const(2.)*vector(x, y, z), needs to do scalar(const(2))*vector(x, y, z)
+    """
+    Create a scalar (tensor with only one component in last index) which can be used 
+    to e.g. scale a vector. One cannot do e.g. const(2.)*vector(x, y, z), 
+    needs to do scalar(const(2))*vector(x, y, z) for broadcasting to work. 
 
-    :param x: 
+    :param x: Initial value
+    :returns: Scalar value
 
     """
     return tf.stack([x], axis=-1)
@@ -133,12 +136,12 @@ def scalar(x):
 
 @atfi.function
 def lorentz_vector(space, time):
-    """Make a Lorentz vector from spatial and time components
-      space : 3-vector of spatial components
-      time  : time component
+    """
+    Make a Lorentz vector from spatial and time components
 
-    :param space: 
-    :param time: 
+    :param space: 3-vector of spatial components
+    :param time: time component
+    :returns: Lorentz vector
 
     """
     return tf.concat([space, tf.stack([time], axis=-1)], axis=-1)
@@ -147,16 +150,21 @@ def lorentz_vector(space, time):
 
 @atfi.function
 def metric_tensor():
-    """Metric tensor for Lorentz space (constant)"""
+    """
+    Constant metric tensor for Lorentz space
+    
+    :returns: Metric tensor
+    """
     return tf.constant([-1., -1., -1., 1.], dtype=atfi.fptype())
 
 
 @atfi.function
 def mass_squared(vector):
-    """Calculate mass scalar for Lorentz 4-momentum
-      vector : input Lorentz momentum vector
+    """
+    Calculate squared invariant mass scalar for Lorentz 4-momentum vector
 
-    :param vector: 
+    :param vector: input Lorentz momentum vector
+    :returns: scalar invariant mass squared
 
     """
     return tf.reduce_sum(vector * vector * metric_tensor(), -1)
@@ -165,10 +173,11 @@ def mass_squared(vector):
 
 @atfi.function
 def mass(vector):
-    """Calculate mass scalar for Lorentz 4-momentum
-      vector : input Lorentz momentum vector
+    """
+    Calculate mass scalar for Lorentz 4-momentum vector
 
-    :param vector: 
+    :param vector: input Lorentz momentum vector
+    :returns: scalar invariant mass
 
     """
     return atfi.sqrt(mass_squared(vector))
@@ -176,10 +185,12 @@ def mass(vector):
 
 @atfi.function
 def scalar_product(vec1, vec2):
-    """Calculate scalar product of two 3-vectors
+    """
+    Calculate scalar product of two 3-vectors
 
-    :param vec1: 
-    :param vec2: 
+    :param vec1: First 3-vector
+    :param vec2: Secont 3-vector
+    :returns: Scalar product
 
     """
     return tf.reduce_sum(vec1*vec2, -1)
@@ -188,11 +199,12 @@ def scalar_product(vec1, vec2):
 
 @atfi.function
 def vector_product(vec1, vec2):
-    """Calculate vector product of two 3-vectors
+    """
+    Calculate vector (cross) product of two 3-vectors
 
-    :param vec1: 
-    :param vec2: 
-
+    :param vec1: First 3-vector
+    :param vec2: Second 3-vector
+    :returns: Vector product
     """
     return tf.linalg.cross(vec1, vec2)
 
@@ -200,11 +212,12 @@ def vector_product(vec1, vec2):
 
 @atfi.function
 def cross_product(vec1, vec2):
-    """Calculate cross product of two 3-vectors
+    """
+    Calculate cross (vector) product of two 3-vectors
 
-    :param vec1: 
-    :param vec2: 
-
+    :param vec1: First 3-vector
+    :param vec2: Second 3-vector
+    :returns: Cross (vector) product
     """
     return tf.linalg.cross(vec1, vec2)
 
@@ -212,9 +225,11 @@ def cross_product(vec1, vec2):
 
 @atfi.function
 def norm(vec):
-    """Calculate norm of 3-vector
+    """
+    Calculate norm of 3-vector
 
-    :param vec: 
+    :param vec: Input 3-vector
+    :returns: Scalar norm
 
     """
     return atfi.sqrt(tf.reduce_sum(vec * vec, -1))
@@ -223,9 +238,11 @@ def norm(vec):
 
 @atfi.function
 def p(vector):
-    """Calculate absolute value of the 4-momentum
+    """
+    Calculate absolute value of the 4-momentum
 
-    :param vector: 
+    :param vector: Input 4-momentum vector
+    :returns: Absolute momentum (scalar)
 
     """
     return norm(spatial_components(vector))
@@ -234,9 +251,11 @@ def p(vector):
 
 @atfi.function
 def unit_vector(vec):
-    """Unit vector in the direction of vec
+    """
+    Unit vector in the direction of 3-vector
 
-    :param vec: 
+    :param vec: Input 3-vector
+    :returns: Unit 3-vector
 
     """
     return vec / scalar(norm(vec))
@@ -245,10 +264,12 @@ def unit_vector(vec):
 
 @atfi.function
 def perpendicular_unit_vector(vec1, vec2):
-    """Unit vector perpendicular to the plane formed by vec1 and vec2
+    """
+    Unit vector perpendicular to the plane formed by vec1 and vec2
 
-    :param vec1: 
-    :param vec2: 
+    :param vec1: First 3-vector
+    :param vec2: Second 3-vector
+    :returns: Unit 3-vector
 
     """
     v = vector_product(vec1, vec2)
@@ -258,12 +279,14 @@ def perpendicular_unit_vector(vec1, vec2):
 
 @atfi.function
 def lorentz_boost(vector, boostvector):
-    """Perform Lorentz boost
-      vector :     4-vector to be boosted
-      boostvector: boost vector. Can be either 3-vector or 4-vector (only spatial components are used)
+    """
+    Perform Lorentz boost
 
-    :param vector: 
-    :param boostvector: 
+    :param vector: 4-vector to be boosted
+    :param boostvector: boost vector. 
+                        Can be either 3-vector or 4-vector 
+                        (only spatial components are used)
+    :returns: Boosted 4-vector
 
     """
     boost = spatial_components(boostvector)
@@ -281,10 +304,14 @@ def lorentz_boost(vector, boostvector):
 
 @atfi.function
 def boost_to_rest(vector, boostvector):
-    """Perform Lorentz boost to the rest frame of the 4-vector boostvector.
+    """
+    Perform Lorentz boost to the rest frame of the 
+    4-vector boostvector.
 
-    :param vector: 
-    :param boostvector: 
+    :param vector: 4-vector to be boosted
+    :param boostvector: Boost momentum 4-vector in the same frame as vector
+                        (should have nonzero mass!)
+    :returns: 4-vector boosed to boostvector rest frame
 
     """
     boost = -spatial_components(boostvector) / scalar(time_component(boostvector))
@@ -294,10 +321,14 @@ def boost_to_rest(vector, boostvector):
 
 @atfi.function
 def boost_from_rest(vector, boostvector):
-    """Perform Lorentz boost from the rest frame of the 4-vector boostvector.
+    """
+    Perform Lorentz boost from the rest frame of the 
+    4-vector boostvector.
 
-    :param vector: 
-    :param boostvector: 
+    :param vector: 4-vector to be boosted (defined in the rest frame of boostvector)
+    :param boostvector: Boost momentum 4-vector in "lab" frame
+                        (should have nonzero mass!)
+    :returns: 4-vector boosted to "lab" frame
 
     """
     boost = spatial_components(boostvector) / scalar(time_component(boostvector))
@@ -307,11 +338,13 @@ def boost_from_rest(vector, boostvector):
 
 @atfi.function
 def rotate(v, angle, axis):
-    """rotate vector around an arbitrary axis, from ROOT implementation
+    """
+    Rotate vector around an arbitrary axis. Uses ROOT implementation. 
 
-    :param v: 
-    :param angle: 
-    :param axis: 
+    :param v: Input 3-vector
+    :param angle: Rotation angle
+    :param axis: 3-vector defining rotation axis
+    :returns: Rotated vector
 
     """
     if (angle != atfi.zeros(angle)):
@@ -343,14 +376,14 @@ def rotate(v, angle, axis):
 
 @atfi.function
 def rotate_euler(v, phi, theta, psi):
-    """Perform 3D rotation of the 3-vector
-      v : vector to be rotated
-      phi, theta, psi : Euler angles in Z-Y-Z convention
+    """
+    Perform Euler 3D rotation of the 3-vector in Z-Y-Z convention
 
-    :param v: 
-    :param phi: 
-    :param theta: 
-    :param psi: 
+    :param v: 3-vector to be rotated
+    :param phi: Euler angle phi
+    :param theta: Euler angle theta
+    :param psi: Euler angle psi
+    :returns: Rotated 3-vector
 
     """
 

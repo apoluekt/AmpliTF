@@ -423,14 +423,13 @@ def rotate_euler(v, phi, theta, psi):
 
 @atfi.function
 def rotate_lorentz_vector(v, phi, theta, psi):
-    """Perform 3D rotation of the 4-vector
-      v : vector to be rotated
-      phi, theta, psi : Euler angles in Z-Y-Z convention
+    """Perform 3D Euler rotation of the Lorentz vector in Z-Y-Z convention
 
-    :param v: 
-    :param phi: 
-    :param theta: 
-    :param psi: 
+    :param v: vector to be rotated
+    :param phi: Euler angle phi
+    :param theta: Euler angle theta
+    :param psi: Euler angle psi
+    :returns: rotated Lorentz vector
 
     """
     return lorentz_vector(rotate_euler(spatial_components(v), phi, theta, psi), time_component(v))
@@ -440,10 +439,13 @@ def rotate_lorentz_vector(v, phi, theta, psi):
 @atfi.function
 def project_lorentz_vector(p, axes):
     """
+    Return Lorentz vector with spatial components expressed in 
+    another axes. 
 
-    :param p: 
-    :param axes: 
-
+    :param p: Input Lorentz vector
+    :param axes: Axes of the new coordinate system. 
+                 Assumed to be orthonormal. 
+    :returns: Lorentz vector in the new coordinate system
     """
     (x1, y1, z1) = axes
     p0 = spatial_components(p)
@@ -455,18 +457,17 @@ def project_lorentz_vector(p, axes):
 
 @atfi.function
 def cos_helicity_angle_dalitz(m2ab, m2bc, md, ma, mb, mc):
-    """Calculate cos(helicity angle) for set of two Dalitz plot variables
-      m2ab, m2bc : Dalitz plot variables (inv. masses squared of AB and BC combinations)
-      md : mass of the decaying particle
-      ma, mb, mc : masses of final state particles
+    """Calculate cosine of helicity angle for a set of two Dalitz plot variables
 
-    :param m2ab: 
-    :param m2bc: 
-    :param md: 
-    :param ma: 
-    :param mb: 
-    :param mc: 
-
+    :param m2ab: 1st Dalitz plot variable (squared invariant mass of the AB combination)
+    :param m2bc: 2nd Dalitz plot variable (squared invariant mass of the BC combination)
+    :param md: Mass of the decaying particle D
+    :param ma: Mass of the decay product A
+    :param mb: Mass of the decay product B
+    :param mc: Mass of the decay product C
+    :returns: Cosine of the helicity angle of the AB combination
+              (of the angle between AB direction in D rest frame 
+               and A direction in AB rest frame). 
     """
     md2 = md**2
     ma2 = ma**2
@@ -492,13 +493,16 @@ def cos_helicity_angle_dalitz(m2ab, m2bc, md, ma, mb, mc):
 
 @atfi.function
 def spherical_angles(pb):
-    """theta, phi : polar and azimuthal angles of the vector pb
+    """
+    Return polar and azimuthal angles of the 3-vector or Lorentz vector
 
-    :param pb: 
+    :param pb: Input vector
+    :returns: tuple (theta, phi), where theta is the polar 
+              and phi the azimuthal angles
 
     """
-    z1 = unit_vector(spatial_components(pb))       # New z-axis is in the direction of pb
-    theta = atfi.acos(z_component(z1))                 # Helicity angle
+    z1 = unit_vector(spatial_components(pb))            # Unit vector in the direction of pb
+    theta = atfi.acos(z_component(z1))                  # Helicity angle
     phi = atfi.atan2(y_component(pb), x_component(pb))  # phi angle
     return (theta, phi)
 
@@ -506,9 +510,10 @@ def spherical_angles(pb):
 
 @atfi.function
 def helicity_angles(pb):
-    """theta, phi : polar and azimuthal angles of the vector pb
+    """
+    Return polar and azimuthal angles of the 3-vector or Lorentz vector
 
-    :param pb: 
+    :param pb: Input vector
 
     """
     return spherical_angles(pb)
@@ -548,10 +553,14 @@ def four_momenta_from_helicity_angles(md, ma, mb, theta, phi):
 
 #@atfi.function
 def recursive_sum(vectors):
-    """Helper function fro nested_helicity_angles. It sums all the vectors in
-      a list or nested list
+    """
+    Helper function for nested_helicity_angles. 
+    It sums all the vectors in a list or nested list. 
 
-    :param vectors: 
+    :param vectors: Nested list of vectors 
+                    (3-vectors or Lorentz vectors does not matter, 
+                     cummation is done component-wise). 
+    :returns: sum of input vectors
 
     """
     return sum([recursive_sum(vector) if isinstance(vector, list) else vector for vector in vectors])
@@ -560,8 +569,9 @@ def recursive_sum(vectors):
 
 #@atfi.function
 def nested_helicity_angles(pdecays):
-    """Calculate the Helicity Angles for every decay topology specified with brackets []
-    examples:
+    """
+    Calculate the Helicity Angles for every decay topology specified with brackets []. 
+    Examples:
        - input:
          A -> B (-> C D) E (-> F G) ==> nested_helicity_angles([[C,D],[F,G]])
          A -> B (-> C (-> D E) F) G ==> nested_helicity_angles([ [ [ D, E] , F ] , G ])
@@ -570,7 +580,12 @@ def nested_helicity_angles(pdecays):
          A -> B (-> C (-> D E) F) G ==> (thetaB,phiB,thetaC,phiC,thetaD,phiD)
          where thetaX,phiX are the polar and azimuthal angles of X in the mother rest frame
 
-    :param pdecays: 
+    :param pdecays: Nested 2-element lists of input Lorentz vectors
+                    representing sequence of 2-body decays. 
+                    WARNING: input vectors are all assumed to be in the rest frame 
+                    of the decaying particle. 
+    :returns: flat list of helicity angles (theta, phi), size depends on the 
+              structure of input vectors
 
     """
     angles = ()

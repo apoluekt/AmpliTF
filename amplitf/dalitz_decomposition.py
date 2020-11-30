@@ -45,21 +45,21 @@ def cos_theta_hat_1_canonical_2(M, m1, m2, m3, sigma1, sigma2, sigma3) :
 def cos_theta_hat_2_canonical_3(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
   return cos_theta_hat_3_canonical_1(M, m3, m1, m2, sigma3, sigma1, sigma2)
 
-def cos_zeta_1_canonical_3_in_frame_1(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
+def cos_zeta_1_aligned_3_in_frame_1(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
   return (2*m1**2*(sigma2-M**2-m2**2)+(M**2+m1**2-sigma1)*(sigma3-m1**2-m2**2))/\
          sqrt(kallen_function(M**2, m1**2, sigma1)*kallen_function(sigma3, m1**2, m2**2))
 
-def cos_zeta_1_canonical_1_in_frame_2(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
-  return cos_zeta_1_canonical_3_in_frame_1(M, m1, m3, m2, sigma1, sigma3, sigma2)
+def cos_zeta_1_aligned_1_in_frame_2(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
+  return cos_zeta_1_aligned_3_in_frame_1(M, m1, m3, m2, sigma1, sigma3, sigma2)
 
-def cos_zeta_2_canonical_1_in_frame_2(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
-  return cos_zeta_1_canonical_3_in_frame_1(M, m2, m3, m1, sigma2, sigma3, sigma1)
+def cos_zeta_2_aligned_1_in_frame_2(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
+  return cos_zeta_1_aligned_3_in_frame_1(M, m2, m3, m1, sigma2, sigma3, sigma1)
 
-def cos_zeta_2_canonical_2_in_frame_3(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
-  return cos_zeta_1_canonical_3_in_frame_1(M, m2, m1, m3, sigma2, sigma1, sigma3)
+def cos_zeta_2_aligned_2_in_frame_3(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
+  return cos_zeta_1_aligned_3_in_frame_1(M, m2, m1, m3, sigma2, sigma1, sigma3)
 
-def cos_zeta_3_canonical_3_in_frame_1(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
-  return cos_zeta_1_canonical_3_in_frame_1(M, m3, m1, m2, sigma3, sigma1, sigma2)
+def cos_zeta_3_aligned_3_in_frame_1(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
+  return cos_zeta_1_aligned_3_in_frame_1(M, m3, m1, m2, sigma3, sigma1, sigma2)
 
-def cos_zeta_3_canonical_2_in_frame_3(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
-  return cos_zeta_1_canonical_3_in_frame_1(M, m3, m2, m1, sigma3, sigma2, sigma1)
+def cos_zeta_3_aligned_2_in_frame_3(M, m1, m2, m3, sigma1, sigma2, sigma3) : 
+  return cos_zeta_1_aligned_3_in_frame_1(M, m3, m2, m1, sigma3, sigma2, sigma1)

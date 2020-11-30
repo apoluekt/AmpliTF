@@ -76,7 +76,7 @@ def blatt_weisskopf_ff(q, q0, d, l):
 
     def hankel1(x):
         if l == 0:
-            return Const(1.)
+            return atfi.const(1.)
         if l == 1:
             return 1 + x*x
         if l == 2:

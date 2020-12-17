@@ -391,3 +391,22 @@ def dabba_lineshape(m2ab, b, alpha, beta, ma, mb):
     denomFactor = realPart*realPart + imagPart*imagPart
     ampl = atfi.complex(realPart, imagPart) / atfi.cast_complex(denomFactor)
     return ampl
+
+
+def build_spline_lineshape(degree, nodes) : 
+    """
+      Spline interpolated line shape
+    """
+    from sympy import interpolating_spline, symarray
+    from sympy.abc import x
+    from sympy.utilities.lambdify import lambdify, lambdastr
+
+    coeffs = symarray("c", len(nodes))
+    spl = interpolating_spline(degree, x, nodes, coeffs)
+    f = lambdify([x, coeffs], spl, 'tensorflow')
+
+    @atfi.function
+    def spline_lineshape(m, ampl_re, ampl_im) : 
+      return atfi.complex(f(m, ampl_re), f(m, ampl_im))
+
+    return spline_lineshape

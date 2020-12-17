@@ -66,8 +66,8 @@ _interface_dict = {
   "max" : "tf.maximum",
   "min" : "tf.minimum",
   "conjugate" : "tf.conj",
-  "real" : "tf.real",
-  "imaginary" : "tf.imag",
+  "real" : "tf.math.real",
+  "imaginary" : "tf.math.imag",
   "sqrt": "tf.sqrt",
   "exp" : "tf.exp",
   "log" : "tf.math.log",
@@ -92,6 +92,8 @@ _interface_dict = {
   "logical_or" : "tf.logical_or", 
   "greater" : "tf.greater", 
   "less" :    "tf.less", 
+  "greater_equal" : "tf.greater_equal", 
+  "less_equal" :    "tf.less_equal", 
 }
 
 # Load functions from _interface_dict into module locals()

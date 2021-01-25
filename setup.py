@@ -1,5 +1,6 @@
 import setuptools
 
+
 def long_description():
     """Parse long description from readme."""
     with open("README.md", "r") as readme_file:
@@ -15,11 +16,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     license="GPLv3 or later",
     python_requires=">=3.6",
-    install_requires=[
-        "numpy",
-        "sympy",
-        "tensorflow>=2.0"
-    ],
+    install_requires=["numpy", "sympy", "tensorflow>=2.0"],
     package_data={},
     include_package_data=True,
 )

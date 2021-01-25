@@ -21,7 +21,7 @@ import amplitf.interface as atfi
 
 class VetoPhaseSpace:
     """
-      Veto a range of values in 1D projection of the other phase space
+    Veto a range of values in 1D projection of the other phase space
     """
 
     def __init__(self, phsp, axis, bounds):
@@ -38,8 +38,8 @@ class VetoPhaseSpace:
             self.phsp.inside(x),
             tf.logical_or(
                 tf.less(x[:, self.axis], self.bounds[0]),
-                tf.greater(x[:, self.axis], self.bounds[1])
-            )
+                tf.greater(x[:, self.axis], self.bounds[1]),
+            ),
         )
 
     @atfi.function
@@ -47,26 +47,26 @@ class VetoPhaseSpace:
         return tf.boolean_mask(x, self.inside(x))
 
     @atfi.function
-    def unfiltered_sample(self, size, maximum = None):
+    def unfiltered_sample(self, size, maximum=None):
         """
-          Return TF graph for uniform sample of points within phase space. 
-            size     : number of _initial_ points to generate. Not all of them will fall into phase space, 
-                       so the number of points in the output will be <size. 
-            majorant : if majorant>0, add 3rd dimension to the generated tensor which is 
-                       uniform number from 0 to majorant. Useful for accept-reject toy MC. 
+        Return TF graph for uniform sample of points within phase space.
+          size     : number of _initial_ points to generate. Not all of them will fall into phase space,
+                     so the number of points in the output will be <size.
+          majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                     uniform number from 0 to majorant. Useful for accept-reject toy MC.
         """
         return self.phsp.unfiltered_sample(size, maximum)
 
     @atfi.function
-    def uniform_sample(self, size, maximum = None):
+    def uniform_sample(self, size, maximum=None):
         """
-          Generate uniform sample of point within phase space. 
-            size     : number of _initial_ points to generate. Not all of them will fall into phase space, 
-                       so the number of points in the output will be <size. 
-            majorant : if majorant>0, add 3rd dimension to the generated tensor which is 
-                       uniform number from 0 to majorant. Useful for accept-reject toy MC. 
-          Note it does not actually generate the sample, but returns the data flow graph for generation, 
-          which has to be run within TF session. 
+        Generate uniform sample of point within phase space.
+          size     : number of _initial_ points to generate. Not all of them will fall into phase space,
+                     so the number of points in the output will be <size.
+          majorant : if majorant>0, add 3rd dimension to the generated tensor which is
+                     uniform number from 0 to majorant. Useful for accept-reject toy MC.
+        Note it does not actually generate the sample, but returns the data flow graph for generation,
+        which has to be run within TF session.
         """
         return self.filter(self.unfiltered_sample(size, maximum))
 

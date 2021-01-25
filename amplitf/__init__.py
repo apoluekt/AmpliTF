@@ -17,8 +17,8 @@ __all__ = [
     "kinematics",
     "phasespace",
     "dynamics",
-    "likelihood", 
-    "dalitz_decomposition", 
+    "likelihood",
+    "dalitz_decomposition",
 ]
 
 from . import interface

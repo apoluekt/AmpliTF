@@ -46,7 +46,7 @@ class VetoPhaseSpace:
     def filter(self, x):
         return tf.boolean_mask(x, self.inside(x))
 
-    @atfi.function
+    #@atfi.function
     def unfiltered_sample(self, size, maximum=None):
         """
         Return TF graph for uniform sample of points within phase space.
@@ -57,7 +57,7 @@ class VetoPhaseSpace:
         """
         return self.phsp.unfiltered_sample(size, maximum)
 
-    @atfi.function
+    #@atfi.function
     def uniform_sample(self, size, maximum=None):
         """
         Generate uniform sample of point within phase space.

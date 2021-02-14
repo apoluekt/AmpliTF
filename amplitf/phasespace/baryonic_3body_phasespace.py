@@ -110,7 +110,7 @@ class Baryonic3BodyPhaseSpace(DalitzPhaseSpace):
     def filter(self, x):
         return tf.boolean_mask(x, self.inside(x))
 
-    @atfi.function
+    #@atfi.function
     def unfiltered_sample(self, size, maximum=None):
         """
         Generate uniform sample of point within phase space.

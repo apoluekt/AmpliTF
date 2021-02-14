@@ -47,7 +47,7 @@ class RectangularPhaseSpace:
     def filter(self, x):
         return tf.boolean_mask(x, self.inside(x))
 
-    @atfi.function
+    #@atfi.function
     def unfiltered_sample(self, size, maximum=None):
         """
         Return TF graph for uniform sample of points within phase space.
@@ -64,7 +64,7 @@ class RectangularPhaseSpace:
             v += [tf.random.uniform([size], 0.0, maximum, dtype=atfi.fptype())]
         return tf.stack(v, axis=1)
 
-    @atfi.function
+    #@atfi.function
     def uniform_sample(self, size, maximum=None):
         """
         Generate uniform sample of point within phase space.

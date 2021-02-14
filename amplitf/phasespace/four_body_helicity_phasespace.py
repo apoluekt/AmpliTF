@@ -174,7 +174,7 @@ class FourBodyHelicityPhaseSpace:
             (-math.pi, math.pi),
         ]
 
-    @atfi.function
+    #@atfi.function
     def unfiltered_sample(self, size, maximum=None):
         """
         Generate uniform sample of point within phase space.
@@ -202,7 +202,7 @@ class FourBodyHelicityPhaseSpace:
             v += [tf.random.uniform([size], 0.0, maximum, dtype=atfi.fptype())]
         return tf.stack(v, axis=1)
 
-    @atfi.function
+    #@atfi.function
     def uniform_sample(self, size, maximum=None):
         """
         Generate uniform sample of point within phase space.

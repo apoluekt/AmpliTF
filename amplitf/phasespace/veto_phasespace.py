@@ -27,7 +27,7 @@ class VetoPhaseSpace:
     def __init__(self, phsp, axis, bounds):
         self.phsp = phsp
         self.axis = axis
-        self.bounds = bounds
+        self.veto_bounds = bounds
 
     def dimensionality(self):
         return self.phsp.dimensionality()
@@ -37,8 +37,8 @@ class VetoPhaseSpace:
         return tf.logical_and(
             self.phsp.inside(x),
             tf.logical_or(
-                tf.less(x[:, self.axis], self.bounds[0]),
-                tf.greater(x[:, self.axis], self.bounds[1]),
+                tf.less(x[:, self.axis], self.veto_bounds[0]),
+                tf.greater(x[:, self.axis], self.veto_bounds[1]),
             ),
         )
 

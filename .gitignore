@@ -2,9 +2,12 @@
 *build/
 .fuse_*
 /*dist/
+version.py
 
 # Python temporary files
+*.egg-info/
 *.pyc
+*condaenv.*
 .coverage
 .coverage.*
 .eggs
@@ -12,7 +15,6 @@
 .pytest_cache/
 __pycache__/
 htmlcov/
-*.egg-info/
 
 # Virtual environments
 *venv/

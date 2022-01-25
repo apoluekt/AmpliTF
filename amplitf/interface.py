@@ -67,7 +67,7 @@ _interface_dict = {
     "abs": "tf.abs",
     "max": "tf.maximum",
     "min": "tf.minimum",
-    "conjugate": "tf.conj",
+    "conjugate": "tf.math.conj",
     "real": "tf.math.real",
     "imaginary": "tf.math.imag",
     "sqrt": "tf.sqrt",

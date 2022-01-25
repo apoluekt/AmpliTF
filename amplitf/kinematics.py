@@ -328,39 +328,31 @@ def rotate(v, angle, axis):
     :returns: Rotated vector
 
     """
-    if angle != atfi.zeros(angle):
-        ll = norm(axis)
-        if ll == atfi.zeros(ll):
-            sys.exit("ERROR in rotate: rotation axis is zero")
-        else:
-            sa = atfi.sin(angle)
-            ca = atfi.cos(angle)
-            dx = x_component(axis) / ll
-            dy = y_component(axis) / ll
-            dz = z_component(axis) / ll
-            vx = x_component(v)
-            vy = y_component(v)
-            vz = z_component(v)
-            _vx = (
-                (ca + (1 - ca) * dx * dx) * vx
-                + ((1 - ca) * dx * dy - sa * dz) * vy
-                + ((1 - ca) * dx * dz + sa * dy) * vz
-            )
-            _vy = (
-                ((1 - ca) * dy * dx + sa * dz) * vx
-                + (ca + (1 - ca) * dy * dy) * vy
-                + ((1 - ca) * dy * dz - sa * dx) * vz
-            )
-            _vz = (
-                ((1 - ca) * dz * dx - sa * dy) * vx
-                + ((1 - ca) * dz * dy + sa * dx) * vy
-                + (ca + (1 - ca) * dz * dz) * vz
-            )
-
-            return vector(_vx, _vy, _vz)
-
-    else:
-        return v
+    ll = norm(axis)
+    sa = atfi.sin(angle)
+    ca = atfi.cos(angle)
+    dx = x_component(axis) / ll
+    dy = y_component(axis) / ll
+    dz = z_component(axis) / ll
+    vx = x_component(v)
+    vy = y_component(v)
+    vz = z_component(v)
+    _vx = (
+        (ca + (1 - ca) * dx * dx) * vx
+        + ((1 - ca) * dx * dy - sa * dz) * vy
+        + ((1 - ca) * dx * dz + sa * dy) * vz
+    )
+    _vy = (
+        ((1 - ca) * dy * dx + sa * dz) * vx
+        + (ca + (1 - ca) * dy * dy) * vy
+        + ((1 - ca) * dy * dz - sa * dx) * vz
+    )
+    _vz = (
+        ((1 - ca) * dz * dx - sa * dy) * vx
+        + ((1 - ca) * dz * dy + sa * dx) * vy
+        + (ca + (1 - ca) * dz * dz) * vz
+    )
+    return vector(_vx, _vy, _vz)
 
 
 @atfi.function

@@ -1008,6 +1008,27 @@ def clebsch(j1, m1, j2, m2, J, M):
         .evalf()
     )
 
+def wigner_3j(j1, m1, j2, m2, J, M) : 
+    """
+    Return Wigner 3-j symbol. 
+    """
+    #return clebsch(j1, m1, j2, m2, J, M)/math.sqrt(J+1)*(-1)**((j1-j2-M)//2)
+    #return clebsch(j1, m1, j2, m2, J, M)
+    from sympy.physics.quantum.cg import Wigner3j
+    from sympy import Rational
+
+    return (
+        Wigner3j(
+            Rational(j1, 2),
+            Rational(m1, 2),
+            Rational(j2, 2),
+            Rational(m2, 2),
+            Rational(J, 2),
+            Rational(M, 2),
+        )
+        .doit()
+        .evalf()
+    )
 
 @atfi.function
 def helicity_couplings_from_ls(ja, jb, jc, lb, lc, bls):

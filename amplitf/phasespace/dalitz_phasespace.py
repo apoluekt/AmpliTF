@@ -496,3 +496,6 @@ class DalitzPhaseSpace:
 
     def dimensionality(self):
         return 2
+
+    def bounds(self) :
+        return [(self.minab, self.maxab), (self.minbc, self.maxbc)]

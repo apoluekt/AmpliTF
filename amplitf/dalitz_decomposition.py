@@ -56,7 +56,7 @@ def cos_theta_hat_3_canonical_1(M, m1, m2, m3, sigma1, sigma2, sigma3):
 
 
 def cos_theta_hat_1_canonical_2(M, m1, m2, m3, sigma1, sigma2, sigma3):
-    return cos_theta_hat3_canonical_1(M, m2, m3, m1, sigma2, sigma3, sigma1)
+    return cos_theta_hat_3_canonical_1(M, m2, m3, m1, sigma2, sigma3, sigma1)
 
 
 def cos_theta_hat_2_canonical_3(M, m1, m2, m3, sigma1, sigma2, sigma3):

@@ -35,13 +35,12 @@ class CombinedPhaseSpace:
 
     @atfi.function
     def data1(self, x):
-        return tf.slice(x, [0, 0], [-1, self.phsp1.dimensionality()])
+        return x[..., :self.phsp1.dimensionality()]
+        #return tf.slice(x, [0, 0], [-1, self.phsp1.dimensionality()])
 
     @atfi.function
     def data2(self, x):
-        return tf.slice(
-            x, [0, self.phsp1.dimensionality()], [-1, -1]
-        )
+        return tf.slice(x,[0, self.phsp1.dimensionality()],[-1, self.phsp2.dimensionality()])
 
     @atfi.function
     def inside(self, x):
